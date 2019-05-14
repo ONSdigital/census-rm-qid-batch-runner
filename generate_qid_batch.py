@@ -35,7 +35,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    generate_messages_from_config_file(args.config_file_path)
+    generate_messages_from_config_file_path(args.config_file_path)
 
 
 if __name__ == '__main__':

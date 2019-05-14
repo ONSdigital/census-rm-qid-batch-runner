@@ -1,0 +1,4 @@
+.*
+tests
+makefile
+docker-compose.yml

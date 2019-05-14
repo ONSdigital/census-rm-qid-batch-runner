@@ -11,4 +11,7 @@ test: check lint
 	pipenv run pytest
 
 build: install test
-	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner
+	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
+
+start-pod:
+	./start_interactive_in_k8s.sh
