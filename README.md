@@ -36,3 +36,9 @@ Run the unit tests and style/safety checks with
 ```bash
 make test
 ```
+
+## Docker
+Build the image with
+```bash
+make build
+```

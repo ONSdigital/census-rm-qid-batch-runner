@@ -9,3 +9,6 @@ lint:
 
 test: check lint
 	pipenv run pytest
+
+build: install test
+	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner
