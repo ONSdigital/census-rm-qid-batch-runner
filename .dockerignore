@@ -1,4 +1,4 @@
 .*
 tests
-makefile
+Makefile
 docker-compose.yml

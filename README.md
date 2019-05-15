@@ -26,7 +26,7 @@ pipenv run python generate_qid_batch.py <path to config csv>
 ```
 
 ### In kubernetes
-To start up the image and connect to it's shell in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
+To start up the image and connect to its shell in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
 make start-pod
 ```
