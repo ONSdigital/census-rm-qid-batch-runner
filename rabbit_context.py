@@ -28,7 +28,7 @@ class RabbitContext:
                                       self._vhost,
                                       pika.PlainCredentials(self._user, self._password)))
         self._channel = self._connection.channel()
-        self._channel.queue_declare(queue=self.queue_name)
+        self._channel.queue_declare(queue=self.queue_name, durable=True)
 
     def publish_message(self, message: str, content_type: str):
         if not self._connection.is_open:
