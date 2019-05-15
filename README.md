@@ -1,4 +1,4 @@
-# Census RM QID Batch Runner
+# Census RM QID Batch Runner [![Build Status](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner.svg?branch=master)](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner)
 
 A python script to tell RM to generate unaddressed QID/UAC pairs from a CSV config file.
 
@@ -25,9 +25,26 @@ Run the script locally with
 pipenv run python generate_qid_batch.py <path to config csv>
 ```
 
-<!--->### In Kubernetes TODO<--->
+### In kubernetes
+To start up the image and connect to its shell in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
+```bash
+make start-pod
+```
+Give this a minute to start up, then you should be connected to a bash shell in the pod
+Then you can run the script with
+```bash
+python generate_qid_batch.py unaddressed_batch.csv
+```
 
+If you need to run a different config file, you can copy it into the pod once it is started with kubectl. 
+While the pod is running, in a different shell window run
+```bash
+kubectl cp <local path to csv> qid-batch-runner:/app
+```
 
+Return to the connected shell in the pod, the file should then be available in the pod in `/app`.
+
+When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect and delete the pod.
 
 ## Tests and Checks
 
@@ -35,4 +52,10 @@ Run the unit tests and style/safety checks with
 
 ```bash
 make test
+```
+
+## Docker
+Build the image with
+```bash
+make build
 ```

@@ -12,7 +12,7 @@ class RabbitContext:
         self._exchange = kwargs.get('exchange') or os.getenv('RABBITMQ_EXCHANGE', '')
         self._user = kwargs.get('user') or os.getenv('RABBITMQ_USER', 'guest')
         self._password = kwargs.get('password') or os.getenv('RABBITMQ_PASSWORD', 'guest')
-        self.queue_name = kwargs.get('queue_name') or os.getenv('RABBITMQ_QUEUE', 'localtest')
+        self.queue_name = kwargs.get('queue_name') or os.getenv('RABBITMQ_QUEUE', 'unaddressedRequestQueue')
 
     def __enter__(self):
         self._open_connection()
@@ -28,7 +28,7 @@ class RabbitContext:
                                       self._vhost,
                                       pika.PlainCredentials(self._user, self._password)))
         self._channel = self._connection.channel()
-        self._channel.queue_declare(queue=self.queue_name)
+        self._channel.queue_declare(queue=self.queue_name, durable=True)
 
     def publish_message(self, message: str, content_type: str):
         if not self._connection.is_open:
