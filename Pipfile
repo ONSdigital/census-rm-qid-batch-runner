@@ -10,3 +10,5 @@ flake8 = "*"
 
 [packages]
 pika = "*"
+psycopg2-binary = "*"
+sqlalchemy = "*"
