@@ -18,7 +18,7 @@ def _get_uac_qid_links(engine, questionnaire_type):
     uac_qid_links_query = text("SELECT * FROM casev2.uac_qid_link WHERE SUBSTRING(qid from 1 for 2)"
                                "= :questionnaire_type and caze_case_ref is null")
 
-    return engine.execute(uac_qid_links_query, questionnaire_type = questionnaire_type)
+    return engine.execute(uac_qid_links_query, questionnaire_type=questionnaire_type)
 
 
 def initialise_db():
@@ -35,8 +35,6 @@ def generate_printfile_from_config_file(config_file, output_file_path: Path):
     engine = initialise_db()
     for config_row in config_file_reader:
         results = _get_uac_qid_links(engine, config_row['Questionnaire type'])
-        #TODO: check quanity
-
         filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}.csv'
         with open(output_file_path.joinpath(filename), 'w') as printfile:
             csv_writer = csv.DictWriter(printfile, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
@@ -64,7 +62,6 @@ def main():
     args = parse_arguments()
     print(args.config_file_path)
     generate_printfile_from_config_file_path(args.config_file_path, args.output_file_path)
-    # initialise_db()
 
 
 if __name__ == '__main__':
