@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: qid-batch-runner
+spec:
+  containers:
+    - name: qid-batch-runner
+      image: eu.gcr.io/census-rm-richardweeks01/census-rm-qid-batch-runner:latest
+      command: [ "python", "-c" ]
+      args: [ "while 1:0" ]
+      env:
+        - name: RABBITMQ_SERVICE_HOST
+          value: rabbitmq
+      volumeMounts:
+        - name: cloud-sql-certs
+          mountPath: "/root/.postgresql"
+          readOnly: true
+  volumes:
+    - name: cloud-sql-certs
+      secret:
+        secretName: cloud-sql-certs
+        defaultMode: 0400
