@@ -61,6 +61,9 @@ docker push eu.gcr.io/census-rm-richardweeks01/census-rm-qid-batch-runner:latest
 
 ## Running in GCP
 
+You will need to add the Role 'Storage Admin' to the GCP Project Compute Engine Service Account.
+
+
 Start a Kubernetes Pod
 ```bash
 kubectl apply -f qid-batch-runner.yml
