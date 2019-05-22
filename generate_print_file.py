@@ -68,7 +68,6 @@ def generate_printfile_from_config_file(config_file, output_file_path: Path):
 
 def copy_printfiles_to_gcs():
     client = storage.Client()
-    # bucket = client.get_bucket('print_files')
     bucket = client.create_bucket('print_files')
     print('Bucket {} created'.format(bucket.name))
     print_files_dir = '/app/print_files'
