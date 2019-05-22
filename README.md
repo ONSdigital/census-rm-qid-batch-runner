@@ -17,7 +17,7 @@ docker-compose up -d
 
 Look in [rabbit_context.py](/rabbit_context.py) to see the rabbit config.
 
-## Running the Script
+## Generating the QID UAC pairs
 ### Locally
 Run the script locally with
 
@@ -46,7 +46,37 @@ Return to the connected shell in the pod, the file should then be available in t
 
 When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect and delete the pod.
 
-## Tests and Checks
+# Generating the print files
+
+## Locally build the image
+
+```bash
+docker build . -t eu.gcr.io/census-rm-richardweeks01/census-rm-qid-batch-runner:latest
+```
+
+Push the image to your project
+```bash
+docker push eu.gcr.io/census-rm-richardweeks01/census-rm-qid-batch-runner:latest
+```
+
+## Running in GCP
+
+Start a Kubernetes Pod
+```bash
+kubectl apply -f qid-batch-runner.yml
+```
+
+Enter the Pod to execute script
+```bash
+kubectl exec -it qid-batch-runner /bin/bash
+```
+
+Run the script
+```bash
+python generate_print_file.py unaddressed_batch.csv print_files
+```
+
+# Tests and Checks
 
 Run the unit tests and style/safety checks with
 
