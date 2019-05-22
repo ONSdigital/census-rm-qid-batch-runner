@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+from google.cloud import storage
 
 
 PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'ADDRESS_LINE1',
@@ -65,6 +66,19 @@ def generate_printfile_from_config_file(config_file, output_file_path: Path):
                                                    f'questionnaire type = {config_row["Questionnaire type"]}')
 
 
+def copy_printfiles_to_gcs():
+    client = storage.Client()
+    # bucket = client.get_bucket('print_files')
+    bucket = client.create_bucket('print_files')
+    print('Bucket {} created'.format(bucket.name))
+    print_files_dir = '/app/print_files'
+    files = os.listdir(print_files_dir)
+    for file in files:
+        blob2 = bucket.blob(file)
+        file_path = f'{print_files_dir}/{file}'
+        blob2.upload_from_filename(filename=file_path)
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description='Generate a print file from a CSV config file specifying questionnaire types and respective '
@@ -78,6 +92,7 @@ def main():
     args = parse_arguments()
     print(args.config_file_path)
     generate_printfile_from_config_file_path(args.config_file_path, args.output_file_path)
+    copy_printfiles_to_gcs()
 
 
 if __name__ == '__main__':
