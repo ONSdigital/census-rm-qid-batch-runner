@@ -11,12 +11,35 @@ spec:
       env:
         - name: RABBITMQ_SERVICE_HOST
           value: rabbitmq
+        - name: RABBITMQ_SERVICE_PORT
+          value: "5672"
+        - name: db_host
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: db-host
+        - name: db_port
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: db-port
+        - name: db_name
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: db-name
       volumeMounts:
         - name: cloud-sql-certs
           mountPath: "/root/.postgresql"
           readOnly: true
+        - name: db-credentials
+          mountPath: "/root/.db-credentials"
   volumes:
     - name: cloud-sql-certs
       secret:
         secretName: cloud-sql-certs
+        defaultMode: 0400
+    - name: db-credentials
+      secret:
+        secretName: db-credentials
         defaultMode: 0400

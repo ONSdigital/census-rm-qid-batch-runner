@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 from datetime import datetime
 from pathlib import Path
 from sqlalchemy import create_engine
@@ -22,7 +23,22 @@ def _get_uac_qid_links(engine, questionnaire_type):
 
 
 def initialise_db():
-    return create_engine('postgresql://postgres:postgres@localhost:6432/postgres')
+    db_port=os.getenv('db_port', "NoValue")
+    db_name=os.getenv('db_name', 'NoValue')
+    db_host=os.getenv('db_host', 'NoValue')
+    db_password_file = open("/root/.db-credentials/password", "r")
+    for line in db_password_file:
+        db_password = line
+    db_username_file = open("/root/.db-credentials/username", "r")
+    for line in db_username_file:
+        db_username = line
+    conn_args = {
+        "sslmode": "verify-full",
+        "sslrootcert": "/root/.postgresql/root.crt"
+    }
+    conn_str = f'postgresql://{db_username}:{db_password}@{db_host}:{db_port}/{db_name}'
+    print(conn_str)
+    return create_engine(conn_str)
 
 
 def generate_printfile_from_config_file_path(config_file_path: Path, output_file_path: Path):
