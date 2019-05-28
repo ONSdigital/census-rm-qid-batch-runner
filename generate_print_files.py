@@ -59,7 +59,7 @@ def create_db_engine():
     return create_engine(db_uri)
 
 
-def generate_print_file_from_config_file_path(config_file_path: Path, output_file_path: Path) -> List[Path]:
+def generate_print_files_from_config_file_path(config_file_path: Path, output_file_path: Path) -> List[Path]:
     with open(config_file_path) as config_file:
         return generate_print_files_from_config_file(config_file, output_file_path)
 
@@ -140,7 +140,7 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     print(args.config_file_path)
-    file_paths = generate_print_file_from_config_file_path(args.config_file_path, args.output_file_path)
+    file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path)
     copy_files_to_gcs(file_paths)
 
 
