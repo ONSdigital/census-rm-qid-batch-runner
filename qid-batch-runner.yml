@@ -5,7 +5,9 @@ metadata:
 spec:
   containers:
     - name: qid-batch-runner
-      image: eu.gcr.io/census-rm-richardweeks01/census-rm-qid-batch-runner:latest
+#      image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
+      image: eu.gcr.io/census-rm-adamhawtin/census-rm-qid-batch-runner:latest
+      imagePullPolicy: Always
       command: [ "python", "-c" ]
       args: [ "while 1:0" ]
       env:
@@ -13,33 +15,37 @@ spec:
           value: rabbitmq
         - name: RABBITMQ_SERVICE_PORT
           value: "5672"
-        - name: db_host
+        - name: DB_HOST
           valueFrom:
             configMapKeyRef:
               name: db-config
               key: db-host
-        - name: db_port
+        - name: DB_PORT
           valueFrom:
             configMapKeyRef:
               name: db-config
               key: db-port
-        - name: db_name
+        - name: DB_NAME
           valueFrom:
             configMapKeyRef:
               name: db-config
               key: db-name
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: password
       volumeMounts:
         - name: cloud-sql-certs
           mountPath: "/root/.postgresql"
           readOnly: true
-        - name: db-credentials
-          mountPath: "/root/.db-credentials"
   volumes:
     - name: cloud-sql-certs
       secret:
         secretName: cloud-sql-certs
-        defaultMode: 0400
-    - name: db-credentials
-      secret:
-        secretName: db-credentials
         defaultMode: 0400

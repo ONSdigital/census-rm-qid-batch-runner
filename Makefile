@@ -13,5 +13,10 @@ test: check lint
 build: install test
 	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
 
-start-pod:
-	./start_interactive_in_k8s.sh
+teardown-pod:
+	kubectl delete pod qid-batch-runner
+
+run-in-pod:
+	kubectl apply -f qid-batch-runner.yml
+	sleep 5
+	kubectl exec -it qid-batch-runner /bin/bash
