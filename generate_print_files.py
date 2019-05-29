@@ -11,6 +11,8 @@ from google.cloud import storage
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
+from exceptions import QidQuantityMismatchException
+
 PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'FORENAME', 'SURNAME',
                        'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
 
@@ -142,7 +144,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-class QidQuantityMismatchException(Exception):
-    pass
