@@ -28,7 +28,8 @@ def create_message_json(questionnaire_type):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Generate messages from a CSV config file specifying questionnaire types and respective counts')
+        description='Generate unaddressed QID/UAC request messages from a CSV config file'
+                    ' specifying questionnaire types and respective counts')
     parser.add_argument('config_file_path', help='Path to the CSV config file', type=Path)
     return parser.parse_args()
 
