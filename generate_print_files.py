@@ -11,6 +11,32 @@ from google.cloud import storage
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
+PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'FORENAME', 'SURNAME',
+                       'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
+
+PRODUCTPACK_CODE_TO_DESCRIPTION = {
+    'D_FD_H1': 'Household Questionnaire pack for England',
+    'D_FD_H2': 'Household Questionnaire pack for Wales (English)',
+    'D_FD_H2W': 'Household Questionnaire pack for Wales (Welsh)',
+    'D_FD_H4': 'Household Questionnaire pack for Northern Ireland (English)',
+    'D_FD_HC1': 'Continuation Questionnaire pack for England',
+    'D_FD_HC2': 'Continuation Questionnaire pack for Wales (English)',
+    'D_FD_HC2W': 'Continuation Questionnaire pack for Wales (Welsh)',
+    'D_FD_HC4': 'Continuation Questionnaire pack for Northern Ireland (English)',
+    'D_FD_I1': 'Individual Questionnaire pack for England',
+    'D_FD_I2': 'Individual Questionnaire pack for Wales (English)',
+    'D_FD_I2W': 'Individual Questionnaire pack for Wales (Welsh)',
+    'D_FD_I4': 'Individual Questionnaire pack for Northern Ireland (English)',
+    'D_CCS_CH1': 'CCS Interviewer Household Questionnaire for England and Wales',
+    'D_CCS_CH2W': 'CCS Interviewer Household Questionnaire for Wales (Welsh)',
+    'D_CCS_CHP1': 'CCS Postback for England',
+    'D_CCS_CHP2W': 'CCS Postback for Wales (English and Welsh)',
+    'D_CCS_CCP1': 'CCS Postback Continuation Questionnaire for England & Wales',
+    'D_CCS_CCP2W': 'CCS Postback Continuation Questionnaire for Wales (Welsh)',
+    'D_CCS_CCE1': 'CCS Interviewer CE Manager for England & Wales (English)',
+    'D_CCS_CCE2W': 'CCS Interviewer CE Manager for Wales (Welsh)'
+}
+
 
 def _get_uac_qid_links(engine, questionnaire_type):
     uac_qid_links_query = text("SELECT * FROM casev2.uac_qid_link WHERE SUBSTRING(qid FROM 1 FOR 2)"
@@ -116,32 +142,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'FORENAME', 'SURNAME',
-                       'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
-
-PRODUCTPACK_CODE_TO_DESCRIPTION = {
-    'D_FD_H1': 'Household Questionnaire pack for England',
-    'D_FD_H2': 'Household Questionnaire pack for Wales (English)',
-    'D_FD_H2W': 'Household Questionnaire pack for Wales (Welsh)',
-    'D_FD_H4': 'Household Questionnaire pack for Northern Ireland (English)',
-    'D_FD_HC1': 'Continuation Questionnaire pack for England',
-    'D_FD_HC2': 'Continuation Questionnaire pack for Wales (English)',
-    'D_FD_HC2W': 'Continuation Questionnaire pack for Wales (Welsh)',
-    'D_FD_HC4': 'Continuation Questionnaire pack for Northern Ireland (English)',
-    'D_FD_I1': 'Individual Questionnaire pack for England',
-    'D_FD_I2': 'Individual Questionnaire pack for Wales (English)',
-    'D_FD_I2W': 'Individual Questionnaire pack for Wales (Welsh)',
-    'D_FD_I4': 'Individual Questionnaire pack for Northern Ireland (English)',
-    'D_CCS_CH1': 'CCS Interviewer Household Questionnaire for England and Wales',
-    'D_CCS_CH2W': 'CCS Interviewer Household Questionnaire for Wales (Welsh)',
-    'D_CCS_CHP1': 'CCS Postback for England',
-    'D_CCS_CHP2W': 'CCS Postback for Wales (English and Welsh)',
-    'D_CCS_CCP1': 'CCS Postback Continuation Questionnaire for England & Wales',
-    'D_CCS_CCP2W': 'CCS Postback Continuation Questionnaire for Wales (Welsh)',
-    'D_CCS_CCE1': 'CCS Interviewer CE Manager for England & Wales (English)',
-    'D_CCS_CCE2W': 'CCS Interviewer CE Manager for Wales (Welsh)'
-}
 
 
 class QidQuantityMismatchException(Exception):
