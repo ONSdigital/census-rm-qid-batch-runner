@@ -19,9 +19,9 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     generate_print_files_from_config_file_path(config_file_path, output_file_path)
 
     # Then
-    assert next(output_file_path.glob('D_FD_H1*.csv')).read_text() == ('test_uac_1|test_qid_1||||||||D_FD_H1\n'
-                                                                       'test_uac_2|test_qid_2||||||||D_FD_H1\n')
-    assert next(output_file_path.glob('D_FD_H2*.csv')).read_text() == 'test_uac_3|test_qid_3||||||||D_FD_H2\n'
+    assert next(output_file_path.glob('D_FD_H1*.csv')).read_text() == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\n'
+                                                                       'test_uac_2|test_qid_2|||||||||||D_FD_H1\n')
+    assert next(output_file_path.glob('D_FD_H2*.csv')).read_text() == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\n'
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_manifests(cleanup_test_files,
@@ -37,15 +37,15 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     manifest_file_1 = next(output_file_path.glob('D_FD_H1*.manifest'))
     manifest_1 = json.loads(manifest_file_1.read_text())
     assert manifest_1['description'] == 'Household Questionnaire pack for England'
-    assert manifest_1['files'][0]['sizeBytes'] == '76'
-    assert manifest_1['files'][0]['md5Sum'] == '9497defb064132b990c70ceefe99a3b9'
+    assert manifest_1['files'][0]['sizeBytes'] == '82'
+    assert manifest_1['files'][0]['md5Sum'] == 'ba54b332897525b3318a45509f53a12c'
     assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
 
     manifest_file_2 = next(output_file_path.glob('D_FD_H2*.manifest'))
     manifest_2 = json.loads(manifest_file_2.read_text())
     assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
-    assert manifest_2['files'][0]['sizeBytes'] == '38'
-    assert manifest_2['files'][0]['md5Sum'] == '85286b8006f6da1706d937cfed9b8e31'
+    assert manifest_2['files'][0]['sizeBytes'] == '41'
+    assert manifest_2['files'][0]['md5Sum'] == 'c346a4404612e58408fad219725b1720'
     assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
 
 
