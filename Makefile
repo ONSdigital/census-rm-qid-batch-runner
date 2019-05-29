@@ -13,10 +13,11 @@ test: check lint
 build: install test
 	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
 
-teardown-pod:
+delete-pod:
 	kubectl delete pod qid-batch-runner
 
-run-in-pod:
+start-pod:
 	kubectl apply -f qid-batch-runner.yml
-	sleep 5
+
+connect-to-pod:
 	kubectl exec -it qid-batch-runner /bin/bash

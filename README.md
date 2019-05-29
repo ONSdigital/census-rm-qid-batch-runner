@@ -45,9 +45,14 @@ To set this up:
 Also needs rabbit and case-processor working in order to generate the print files.
 
 ### Start a pod
-To start up the image and connect to its shell in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
+To start up the pod in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
-make run-in-pod
+make start-pod
+```
+
+Then once the pod is ready connect to it with
+```bash
+make connect-to-pod
 ```
 This should connect you to a bash shell in the pod
 
@@ -75,7 +80,7 @@ python generate_print_files.py unaddressed_batch.csv print_files
 
 This should write the files out to the GCS bucket.
 
-When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make teardown-pod`.
+When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make delete-pod`.
 
 
 ## Tests and Checks
