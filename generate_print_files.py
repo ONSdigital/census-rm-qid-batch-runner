@@ -94,7 +94,7 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
 
 
 def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str):
-    manifest = create_manifest(manifest_file_path, print_file_path, productpack_code)
+    manifest = create_manifest(print_file_path, productpack_code)
     manifest_file_path.write_text(json.dumps(manifest))
 
 
