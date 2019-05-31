@@ -27,7 +27,7 @@ pipenv run python generate_qid_batch.py <path to config csv>
 to request the qid/uac pairs, then once all those message have been ingested
 
 ```bash
-pipenv run python generate_print_files.py <path to config csv> <path to output directory>
+pipenv run python generate_print_files.py <path to config csv> <path to output directory> --no-gcs
 ```
 
 this will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
@@ -75,10 +75,11 @@ Return to the connected shell in the pod, the file should then be available in t
 ### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
-python generate_print_files.py unaddressed_batch.csv print_files
+python generate_print_files.py unaddressed_batch.csv <print file directory path>
 ```
 
-This should write the files out to the GCS bucket.
+This should write the files out locally, then copy them to the GCS bucket.
+If don't want to upload the files to GCS then run with the `--no-gcs` flag.
 
 When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make delete-pod`.
 

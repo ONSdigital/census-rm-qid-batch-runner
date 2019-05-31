@@ -75,6 +75,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path) -
         manifest_file_path = output_file_path.joinpath(f'{filename}.manifest')
         generate_manifest_file(manifest_file_path, print_file_path, config_row['Pack code'])
         file_paths.append(manifest_file_path)
+    print(f'Successfully generated {len(file_paths)} files in {output_file_path}')
     return file_paths
 
 
@@ -107,7 +108,7 @@ def create_manifest(manifest_file_path: Path, print_file_path: Path, productpack
         'files': [
             {
                 'name': print_file_path.name,
-                'relativePath': str(print_file_path.absolute().relative_to(manifest_file_path.absolute().parent)),
+                'relativePath': print_file_path.name,  # TODO Match this to SFTP directory structure
                 'sourceName': 'ONS_RM',
                 'sizeBytes': str(print_file_path.stat().st_size)
             }
@@ -121,6 +122,7 @@ def create_manifest(manifest_file_path: Path, print_file_path: Path, productpack
 def copy_files_to_gcs(file_paths: Collection[Path]):
     client = storage.Client()
     bucket = client.get_bucket(f'{client.project}-print-files')
+    print(f'Copying files to GCS bucket {bucket.name}')
     for file_path in file_paths:
         bucket.blob(file_path.name).upload_from_filename(filename=str(file_path))
     print(f'All {len(file_paths)} files successfully written to {bucket.name}')
@@ -132,6 +134,7 @@ def parse_arguments():
                     'QID/UAC counts')
     parser.add_argument('config_file_path', help='Path to the CSV config file', type=Path)
     parser.add_argument('output_file_path', help='Directory to write output files', type=Path)
+    parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')
     return parser.parse_args()
 
 
@@ -139,7 +142,8 @@ def main():
     args = parse_arguments()
     print(args.config_file_path)
     file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path)
-    copy_files_to_gcs(file_paths)
+    if not args.no_gcs:
+        copy_files_to_gcs(file_paths)
 
 
 if __name__ == '__main__':
