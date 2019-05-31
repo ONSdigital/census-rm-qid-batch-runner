@@ -62,6 +62,7 @@ Once you're in the pods shell you can queue the messages to the request the QID/
 python generate_qid_batch.py unaddressed_batch.csv
 ```
 
+This should print out the generated batch ID which you'll need to generate the print files. Alternatively, specify your own with a flag `--batch-id <UUID>`
 You can watch the `unaddressedRequestQueue` from the rabbit management console to see when all these messages have been ingested by the case-processor.
 
 If you need to run a different config file, you can copy it into the pod once it is started with kubectl. 
@@ -75,7 +76,7 @@ Return to the connected shell in the pod, the file should then be available in t
 ### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
-python generate_print_files.py unaddressed_batch.csv <print file directory path>
+python generate_print_files.py unaddressed_batch.csv <print file directory path> <batch ID>
 ```
 
 This should write the files out locally, then copy them to the GCS bucket.
