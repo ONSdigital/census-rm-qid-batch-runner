@@ -98,7 +98,7 @@ def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, prod
     manifest_file_path.write_text(json.dumps(manifest))
 
 
-def create_manifest(manifest_file_path: Path, print_file_path: Path, productpack_code: str) -> dict:
+def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
     manifest = {
         'schemaVersion': '1',
         'description': PRODUCTPACK_CODE_TO_DESCRIPTION[productpack_code],
