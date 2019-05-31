@@ -3,6 +3,7 @@ import csv
 import hashlib
 import json
 import os
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import List, Collection
@@ -40,11 +41,11 @@ PRODUCTPACK_CODE_TO_DESCRIPTION = {
 }
 
 
-def _get_uac_qid_links(engine, questionnaire_type):
+def _get_uac_qid_links(engine, questionnaire_type, batch_id):
     uac_qid_links_query = text("SELECT * FROM casev2.uac_qid_link WHERE SUBSTRING(qid FROM 1 FOR 2)"
-                               "= :questionnaire_type AND caze_case_ref IS NULL")
+                               " = :questionnaire_type AND caze_case_ref IS NULL AND batch_id = :batch_id")
 
-    return engine.execute(uac_qid_links_query, questionnaire_type=questionnaire_type)
+    return engine.execute(uac_qid_links_query, questionnaire_type=questionnaire_type, batch_id=batch_id)
 
 
 def create_db_engine():
@@ -57,17 +58,19 @@ def create_db_engine():
     return create_engine(db_uri)
 
 
-def generate_print_files_from_config_file_path(config_file_path: Path, output_file_path: Path) -> List[Path]:
+def generate_print_files_from_config_file_path(config_file_path: Path,
+                                               output_file_path: Path,
+                                               batch_id: uuid.UUID) -> List[Path]:
     with open(config_file_path) as config_file:
-        return generate_print_files_from_config_file(config_file, output_file_path)
+        return generate_print_files_from_config_file(config_file, output_file_path, batch_id)
 
 
-def generate_print_files_from_config_file(config_file, output_file_path: Path) -> List[Path]:
+def generate_print_files_from_config_file(config_file, output_file_path: Path, batch_id: uuid.UUID) -> List[Path]:
     config_file_reader = csv.DictReader(config_file)
     db_engine = create_db_engine()
     file_paths = []
     for config_row in config_file_reader:
-        uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'])
+        uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'], str(batch_id))
         filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}'
         print_file_path = output_file_path.joinpath(f'{filename}.csv')
         generate_print_file(print_file_path, uac_qid_links, config_row)
@@ -134,6 +137,8 @@ def parse_arguments():
                     'QID/UAC counts')
     parser.add_argument('config_file_path', help='Path to the CSV config file', type=Path)
     parser.add_argument('output_file_path', help='Directory to write output files', type=Path)
+    parser.add_argument('batch_id', help='UUID for this qid/uac pair batch, defaults to randomly generated',
+                        type=uuid.UUID)
     parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')
     return parser.parse_args()
 
@@ -141,7 +146,7 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     print(args.config_file_path)
-    file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path)
+    file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path, args.batch_id)
     if not args.no_gcs:
         copy_files_to_gcs(file_paths)
 

@@ -1,4 +1,5 @@
 import json
+import uuid
 from pathlib import Path
 from unittest.mock import patch
 
@@ -11,7 +12,7 @@ def test_generate_messages_from_config_file_path():
 
     # When
     with patch('generate_qid_batch.RabbitContext') as patch_rabbit:
-        generate_messages_from_config_file_path(config_file_path)
+        generate_messages_from_config_file_path(config_file_path, uuid.uuid4())
 
     # Then
     patch_rabbit_context = patch_rabbit.return_value.__enter__.return_value
