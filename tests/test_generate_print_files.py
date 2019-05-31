@@ -89,7 +89,7 @@ def test_copy_files_to_gcs():
     mock_upload_from_filename.assert_has_calls([call(filename=str(file_path)) for file_path in test_files])
 
 
-def mock_test_batch_results(mock_engine, batch_id):
+def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
     mock_engine.execute.side_effect = (
         ({'qid': 'test_qid_1', 'uac': 'test_uac_1', 'batch_id': str(batch_id)},
          {'qid': 'test_qid_2', 'uac': 'test_uac_2', 'batch_id': str(batch_id)}),
