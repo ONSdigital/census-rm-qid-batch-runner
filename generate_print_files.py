@@ -48,11 +48,11 @@ def _get_uac_qid_links(engine, questionnaire_type):
 
 
 def create_db_engine():
-    db_port = os.environ['DB_PORT']
-    db_name = os.environ['DB_NAME']
-    db_host = os.environ['DB_HOST']
-    db_username = os.environ['DB_USERNAME']
-    db_password = os.environ['DB_PASSWORD']
+    db_port = os.getenv('DB_PORT', '6432')
+    db_name = os.getenv('DB_NAME', 'postgres')
+    db_host = os.getenv('DB_HOST', 'localhost')
+    db_username = os.getenv('DB_USERNAME', 'postgres')
+    db_password = os.getenv('DB_PASSWORD', 'postgres')
     db_uri = f'postgresql://{db_username}:{db_password}@{db_host}:{db_port}/{db_name}'
     return create_engine(db_uri)
 
