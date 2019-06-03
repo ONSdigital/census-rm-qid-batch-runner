@@ -27,7 +27,7 @@ pipenv run python generate_qid_batch.py <path to config csv>
 to request the qid/uac pairs, then once all those message have been ingested
 
 ```bash
-pipenv run python generate_print_files.py <path to config csv> <path to output directory> --no-gcs
+pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
 ```
 
 this will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
