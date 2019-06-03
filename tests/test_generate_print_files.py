@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import uuid
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
@@ -16,9 +17,11 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     # Given
     resource_file_path, output_file_path = setup_environment
     config_file_path = resource_file_path.joinpath('test_batch.csv')
+    batch_id = uuid.uuid4()
+    mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, output_file_path)
+    generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
 
     # Then
     assert next(output_file_path.glob('D_FD_H1*.csv')).read_text() == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\n'
@@ -31,13 +34,15 @@ def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_misma
                                                                                     setup_environment):
     # Given
     resource_file_path, output_file_path = setup_environment
+    batch_id = uuid.uuid4()
+    mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
     config_file_path = resource_file_path.joinpath('test_batch_quantity_mismatch.csv')
 
     # Then
     with pytest.raises(QidQuantityMismatchException, match='expected = 10, found = 2, questionnaire type = 01'):
-        generate_print_files_from_config_file_path(config_file_path, output_file_path)
+        generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_manifests(cleanup_test_files,
@@ -46,9 +51,11 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     # Given
     resource_file_path, output_file_path = setup_environment
     config_file_path = resource_file_path.joinpath('test_batch.csv')
+    batch_id = uuid.uuid4()
+    mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, output_file_path)
+    generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
 
     # Then
     manifest_file_1 = next(output_file_path.glob('D_FD_H1*.manifest'))
@@ -82,6 +89,14 @@ def test_copy_files_to_gcs():
     mock_upload_from_filename.assert_has_calls([call(filename=str(file_path)) for file_path in test_files])
 
 
+def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
+    mock_engine.execute.side_effect = (
+        ({'qid': 'test_qid_1', 'uac': 'test_uac_1', 'batch_id': str(batch_id)},
+         {'qid': 'test_qid_2', 'uac': 'test_uac_2', 'batch_id': str(batch_id)}),
+        ({'qid': 'test_qid_3', 'uac': 'test_uac_3', 'batch_id': str(batch_id)},)
+    )
+
+
 @pytest.fixture
 def setup_environment():
     resource_file_path = Path(__file__).parent.resolve().joinpath('resources')
@@ -96,14 +111,9 @@ def setup_environment():
 @pytest.fixture
 def mock_db_engine():
     mock_engine = Mock()
-    mock_engine.execute.side_effect = (
-        ({'qid': 'test_qid_1', 'uac': 'test_uac_1'},
-         {'qid': 'test_qid_2', 'uac': 'test_uac_2'}),
-        ({'qid': 'test_qid_3', 'uac': 'test_uac_3'},)
-    )
     with patch('generate_print_files.create_engine') as patched_create_engine:
         patched_create_engine.return_value = mock_engine
-        yield
+        yield mock_engine
 
 
 @pytest.fixture

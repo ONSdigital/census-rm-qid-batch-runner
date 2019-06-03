@@ -27,7 +27,7 @@ pipenv run python generate_qid_batch.py <path to config csv>
 to request the qid/uac pairs, then once all those message have been ingested
 
 ```bash
-pipenv run python generate_print_files.py <path to config csv> <path to output directory> --no-gcs
+pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
 ```
 
 this will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
@@ -39,7 +39,7 @@ The generate print files script needs a GCS bucket named `<PROJECT_ID>-print-fil
 To set this up:
 
 1. Navigate to the storage section in the GCP web UI
-1. Click create bucket and name it `<PROJECT_ID>-print-files`
+1. Click create bucket and name it `<PROJECT_ID>-print-files`, set the `Default storage class` to `Regional` and then the location to `europe-west2`
 1. In the new bucket, go to the permissions tab and edit the permissions of the `compute@...` service account to include `Storage Legacy Bucket Reader` and `Storage Object Creator`.
 
 Also needs rabbit and case-processor working in order to generate the print files.
@@ -62,6 +62,7 @@ Once you're in the pods shell you can queue the messages to the request the QID/
 python generate_qid_batch.py unaddressed_batch.csv
 ```
 
+This should print out the generated batch ID which you'll need to generate the print files. Alternatively, specify your own with a flag `--batch-id <UUID>`
 You can watch the `unaddressedRequestQueue` from the rabbit management console to see when all these messages have been ingested by the case-processor.
 
 If you need to run a different config file, you can copy it into the pod once it is started with kubectl. 
@@ -75,7 +76,7 @@ Return to the connected shell in the pod, the file should then be available in t
 ### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
-python generate_print_files.py unaddressed_batch.csv <print file directory path>
+python generate_print_files.py unaddressed_batch.csv <print file directory path> <batch ID>
 ```
 
 This should write the files out locally, then copy them to the GCS bucket.
