@@ -39,7 +39,7 @@ The generate print files script needs a GCS bucket named `<PROJECT_ID>-print-fil
 To set this up:
 
 1. Navigate to the storage section in the GCP web UI
-1. Click create bucket and name it `<PROJECT_ID>-print-files`
+1. Click create bucket and name it `<PROJECT_ID>-print-files`, set the `Default storage class` to `Regional` and then the location to `europe-west2`
 1. In the new bucket, go to the permissions tab and edit the permissions of the `compute@...` service account to include `Storage Legacy Bucket Reader` and `Storage Object Creator`.
 
 Also needs rabbit and case-processor working in order to generate the print files.
