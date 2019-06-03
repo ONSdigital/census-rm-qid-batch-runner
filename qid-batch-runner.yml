@@ -14,6 +14,16 @@ spec:
           value: rabbitmq
         - name: RABBITMQ_SERVICE_PORT
           value: "5672"
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq
+              key: rabbitmq-username
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq
+              key: rabbitmq-password
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
