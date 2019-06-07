@@ -49,12 +49,29 @@ spec:
             secretKeyRef:
               name: db-credentials
               key: password
+        - name: OUR_PUBLIC_KEY_PATH
+            valueFrom:
+              configMapKeyRef:
+                name: pgp-config
+                key: our-public-key-path
+        - name: OTHER_PUBLIC_KEY_PATH
+            valueFrom:
+              configMapKeyRef:
+                name: pgp-config
+                key: other-public-key-path
       volumeMounts:
         - name: cloud-sql-certs
           mountPath: "/root/.postgresql"
+          readOnly: true
+        - name: pgp-public-keys
+          mountPath: "/pgp-public-keys"
           readOnly: true
   volumes:
     - name: cloud-sql-certs
       secret:
         secretName: cloud-sql-certs
         defaultMode: 0400
+    - name: pgp-public-keys
+        secret:
+          secretName: pgp-public-keys
+          defaultMode: 0400
