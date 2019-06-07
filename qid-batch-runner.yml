@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: qid-batch-runner
-      image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
+      image: eu.gcr.io/census-rm-liamtoozer7/rm/census-rm-qid-batch-runner
       imagePullPolicy: Always
       command: [ "python", "-c" ]
       args: [ "while 1:0" ]
