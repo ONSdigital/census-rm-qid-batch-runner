@@ -41,15 +41,14 @@ def _callback(ch, method, _properties, body, output_file_path, file_paths):
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-
 def dump_message_to_file(print_file_path: Path, message_body):
     with open(print_file_path, 'w') as print_file:
         print_file.write(message_body.decode("utf-8"));
 
 
-def copy_files_to_gcs(file_paths: Collection[Path]):
+def copy_files_to_gcs(file_paths: Collection[Path], queue_name):
     client = storage.Client()
-    bucket = client.get_bucket(f'{client.project}-print-files')
+    bucket = client.get_bucket(f'{client.project}-{queue_name}-queue-dump-files')
     print(f'Copying files to GCS bucket {bucket.name}')
     for file_path in file_paths:
         bucket.blob(file_path.name).upload_from_filename(filename=str(file_path))
@@ -58,8 +57,8 @@ def copy_files_to_gcs(file_paths: Collection[Path]):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description='Dump the contents of a rabbit queue to individual message files in a directory')
-    parser.add_argument('queue_name', help='Path to the CSV config file', type=str)
+        description='Dump the contents of a Rabbit queue to individual message files in a directory')
+    parser.add_argument('queue_name', help='Name of the Rabbit queue to consume messages from', type=str)
     parser.add_argument('output_file_path', help='Directory to write output files', type=Path)
     parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')
     return parser.parse_args()
@@ -69,7 +68,7 @@ def main():
     args = parse_arguments()
     file_paths = dump_messages(args.queue_name, args.output_file_path)
     if not args.no_gcs:
-        copy_files_to_gcs(file_paths)
+        copy_files_to_gcs(file_paths, args.queue_name)
 
 
 if __name__ == '__main__':
