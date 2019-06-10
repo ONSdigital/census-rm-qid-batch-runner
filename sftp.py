@@ -5,7 +5,7 @@ import paramiko
 
 class SftpUtility:
     def __init__(self):
-        self.sftp_directory = os.getenv('SFTP_DIR')
+        self.sftp_directory = os.getenv('SFTP_DIRECTORY')
         self.ssh_client = paramiko.SSHClient()
         self.ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.ssh_client.connect(hostname=os.getenv('SFTP_HOST', 'sftp'),
