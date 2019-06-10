@@ -1,60 +1,74 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1beta1
+kind: Deployment
 metadata:
   name: qid-batch-runner
+  labels:
+    app: qid-batch-runner
 spec:
-  containers:
-    - name: qid-batch-runner
-      image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
-      imagePullPolicy: Always
-      command: [ "python", "-c" ]
-      args: [ "while 1:0" ]
-      env:
-        - name: RABBITMQ_SERVICE_HOST
-          value: rabbitmq
-        - name: RABBITMQ_SERVICE_PORT
-          value: "5672"
-        - name: RABBITMQ_USER
-          valueFrom:
-            secretKeyRef:
-              name: rabbitmq
-              key: rabbitmq-username
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: rabbitmq
-              key: rabbitmq-password
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-host
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-port
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-name
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: password
-      volumeMounts:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: qid-batch-runner
+      labels:
+        app: qid-batch-runner
+    spec:
+      containers:
+      - name: qid-batch-runner
+        image: eu.gcr.io/census-rm-adamhawtin/census-rm-qid-batch-runner:latest
+        imagePullPolicy: Always
+        command: [ "python", "-c" ]
+        args: [ "while 1:0" ]
+        env:
+          - name: RABBITMQ_SERVICE_HOST
+            value: rabbitmq
+          - name: RABBITMQ_SERVICE_PORT
+            value: "5672"
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-password
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-host
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-port
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-name
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+        volumeMounts:
+          - name: cloud-sql-certs
+            mountPath: "/root/.postgresql"
+            readOnly: true
+      volumes:
         - name: cloud-sql-certs
-          mountPath: "/root/.postgresql"
-          readOnly: true
-  volumes:
-    - name: cloud-sql-certs
-      secret:
-        secretName: cloud-sql-certs
-        defaultMode: 0400
+          secret:
+            secretName: cloud-sql-certs
+            defaultMode: 0400

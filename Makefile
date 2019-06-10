@@ -14,7 +14,7 @@ build: install test
 	docker build . -t eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
 
 delete-pod:
-	kubectl delete pod qid-batch-runner
+	kubectl delete deploy qid-batch-runner
 
 start-pod:
 	kubectl apply -f qid-batch-runner.yml
