@@ -12,7 +12,9 @@ from google.cloud import storage
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
+import sftp
 from exceptions import QidQuantityMismatchException
+
 
 PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'FORENAME', 'SURNAME',
                        'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
@@ -131,6 +133,14 @@ def copy_files_to_gcs(file_paths: Collection[Path]):
     print(f'All {len(file_paths)} files successfully written to {bucket.name}')
 
 
+def copy_files_to_sftp(file_paths: Collection[Path]):
+    with sftp.SftpUtility() as sftp_client:
+        print(f'Copying files to SFTP remote {sftp_client.sftp_directory}')
+        for file_path in file_paths:
+            sftp_client.put_file(local_path=str(file_path), filename=file_path.name)
+        print(f'All {len(file_paths)} files successfully written to {sftp_client.sftp_directory}')
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description='Generate a print file from a CSV config file specifying questionnaire types and respective '
@@ -140,6 +150,7 @@ def parse_arguments():
     parser.add_argument('batch_id', help='UUID for this qid/uac pair batch, defaults to randomly generated',
                         type=uuid.UUID)
     parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')
+    parser.add_argument('--no-sftp', help="Don't copy the files over SFTP", required=False, action='store_true')
     return parser.parse_args()
 
 
@@ -149,6 +160,8 @@ def main():
     file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path, args.batch_id)
     if not args.no_gcs:
         copy_files_to_gcs(file_paths)
+    if not args.no_sftp:
+        copy_files_to_sftp(file_paths)
 
 
 if __name__ == '__main__':
