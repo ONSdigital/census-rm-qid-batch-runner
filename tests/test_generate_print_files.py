@@ -92,7 +92,7 @@ def test_copy_files_to_gcs():
 def test_copy_files_to_sftp():
     # Given
     test_files = [Path('test1'), Path('test2'), Path('test3')]
-    os.environ['SFTP_DIR'] = 'test_path'
+    os.environ['SFTP_DIRECTORY'] = 'test_path'
     mock_storage_client = Mock()
 
     # When
