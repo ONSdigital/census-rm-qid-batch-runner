@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 cd /app
-pytest acceptance_tests.py
+behave acceptance_tests
