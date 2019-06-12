@@ -1,1 +1,1 @@
-name = 'census-rm-qid-batch-runner'
+name = 'census_rm_qid_batch_runner'

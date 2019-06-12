@@ -3,7 +3,7 @@ from pathlib import Path
 import setuptools
 
 setuptools.setup(
-    name="census-rm-qid-batch-runner",
+    name="census_rm_qid_batch_runner",
     version="0.0.1",
     description="Scripts to request qid pairs and generate print files",
     long_description=Path('README.md').read_text(),
