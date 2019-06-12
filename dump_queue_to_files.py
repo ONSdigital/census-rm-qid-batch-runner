@@ -49,10 +49,10 @@ def dump_message_to_file(print_file_path: Path, message_body):
 
 def copy_files_to_gcs(file_paths: Collection[Path], queue_name):
     client = storage.Client()
-    bucket = client.get_bucket(f'{client.project}-{queue_name}-queue-dump-files')
+    bucket = client.get_bucket(f'{client.project}-queue-dump-files')
     print(f'Copying files to GCS bucket {bucket.name}')
     for file_path in file_paths:
-        bucket.blob(file_path.name).upload_from_filename(filename=str(file_path))
+        bucket.blob(f'{queue_name}/{file_path.name}').upload_from_filename(filename=str(file_path))
     print(f'All {len(file_paths)} files successfully written to {bucket.name}')
 
 

@@ -4,15 +4,10 @@ from pathlib import Path
 from rabbit_context import RabbitContext
 
 
-def send_rabbit_message(message_file, queue_name):
-    with RabbitContext(queue_name=queue_name) as rabbit:
-        rabbit.publish_message(message_file.read(), 'application/json')
-
-
 def publish_messages_from_config_file_path(queue_name, source_file_path, destination_file_path):
-    for file_path in source_file_path.rglob('*.json'):
-        with open(file_path) as message_file:
-            send_rabbit_message(message_file, queue_name)
+    with RabbitContext(queue_name=queue_name) as rabbit:
+        for file_path in source_file_path.rglob('*.json'):
+            rabbit.publish_message(file_path.read_text(), 'application/json')
             file_path.replace(destination_file_path.joinpath(file_path.name))
 
 
