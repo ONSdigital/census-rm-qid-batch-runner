@@ -108,7 +108,7 @@ To install the package from master run
 pipenv install -e git+https://github.com/ONSdigital/census-rm-qid-batch-runner#egg=census-rm-qid-batch-runner
 ```
 
-But note that pipenv locks with the commit hash as a ref, so any further commits to master in this repo will cause a pipenv install --deploy to fail until it is relocked since the remote ref will have changed.
+But note that pipenv locks with the commit hash as a ref, so any further commits to master in this repo will cause a `pipenv install --deploy` to fail until it is relocked since the remote ref will have changed.
 
 ### Install a release
 To install the package from a release tag run 
