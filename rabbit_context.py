@@ -44,8 +44,14 @@ class RabbitContext:
         del self._connection
 
     def publish_message(self, message: str, content_type: str):
+        if not hasattr(self, '_connection') or not self._connection.is_open:
+            raise RabbitConnectionClosedError
         self.channel.basic_publish(
             exchange=self._exchange,
             routing_key=self.queue_name,
             body=message,
             properties=pika.BasicProperties(content_type=content_type))
+
+
+class RabbitConnectionClosedError(Exception):
+    pass

@@ -10,10 +10,9 @@ def send_rabbit_message(message_file, queue_name):
 
 
 def publish_messages_from_config_file_path(queue_name, source_file_path, destination_file_path):
-    source_file_path.iterdir()
     for file_path in source_file_path.rglob('*.json'):
         with open(file_path) as message_file:
-            send_rabbit_message(message_file, queue_name);
+            send_rabbit_message(message_file, queue_name)
             file_path.replace(destination_file_path.joinpath(file_path.name))
 
 

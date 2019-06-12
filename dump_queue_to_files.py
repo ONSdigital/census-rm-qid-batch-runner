@@ -30,11 +30,12 @@ def _timeout_callback(rabbit):
 def dump_messages(queue_name, output_file_path):
     file_paths = []
     start_listening_to_rabbit_queue(queue_name,
-                                    functools.partial(_callback, output_file_path=output_file_path, file_paths=file_paths))
+                                    functools.partial(_rabbit_message_received_callback,
+                                                      output_file_path=output_file_path, file_paths=file_paths))
     return file_paths
 
 
-def _callback(ch, method, _properties, body, output_file_path, file_paths):
+def _rabbit_message_received_callback(ch, method, _properties, body, output_file_path, file_paths):
     output_file = output_file_path.joinpath(f'{str(uuid.uuid4())}.json')
     file_paths.append(output_file)
     dump_message_to_file(output_file,  body)
@@ -43,7 +44,7 @@ def _callback(ch, method, _properties, body, output_file_path, file_paths):
 
 def dump_message_to_file(print_file_path: Path, message_body):
     with open(print_file_path, 'w') as print_file:
-        print_file.write(message_body.decode("utf-8"));
+        print_file.write(message_body.decode("utf-8"))
 
 
 def copy_files_to_gcs(file_paths: Collection[Path], queue_name):
