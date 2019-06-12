@@ -5,6 +5,7 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
+import paramiko
 import pytest
 
 from exceptions import QidQuantityMismatchException
@@ -98,13 +99,14 @@ def test_copy_files_to_sftp():
     # When
     with patch('generate_print_files.sftp.paramiko.SSHClient') as client:
         client.return_value.open_sftp.return_value = mock_storage_client
+        mock_storage_client.stat.return_value.st_mode = paramiko.sftp_client.stat.S_IFDIR
         copy_files_to_sftp(test_files)
 
     mock_put_file = mock_storage_client.put
 
     # Then
     mock_put_file.assert_has_calls(
-        [call(str(file_path), f'test_path/{file_path.name}') for file_path in test_files])
+        [call(str(file_path), file_path.name) for file_path in test_files])
 
 
 def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
