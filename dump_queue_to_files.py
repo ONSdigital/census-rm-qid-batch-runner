@@ -29,7 +29,7 @@ def _timeout_callback(rabbit):
 
 
 def dump_messages(queue_name, output_file_path):
-    directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().isoformat("_", "seconds")}')
+    directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}')
     directory_path.mkdir()
     start_listening_to_rabbit_queue(queue_name,
                                     functools.partial(_rabbit_message_received_callback,
