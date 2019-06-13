@@ -92,7 +92,7 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
             print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
                          'PRODUCTPACK_CODE': config["Pack code"]}
             csv_writer.writerow(print_row)
-        if row_count != int(config["Quantity"]):
+        if uac_qid_links and row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
                                                f'questionnaire type = {config["Questionnaire type"]}')
         unencrypted_csv_contents = print_file_stream.getvalue()

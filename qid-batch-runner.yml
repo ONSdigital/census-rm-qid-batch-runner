@@ -66,11 +66,11 @@ spec:
         secretName: cloud-sql-certs
         defaultMode: 0400
     - name: pgp-keys
-        secret:
-          secretName: pgp-keys
-          defaultMode: 0400
-          items:
-            - key: our-public-key
-              path: "our_public_key.asc"
-            - key: other-public-key
-              path: "other_public_key.asc"
+      secret:
+        secretName: pgp-keys
+        defaultMode: 0400
+        items:
+          - key: our-public-key
+            path: "our_public_key.asc"
+          - key: other-public-key
+            path: "other_public_key.asc"

@@ -7,10 +7,10 @@ verify_ssl = true
 pytest = "*"
 pytest-cov = "*"
 flake8 = "*"
-pgpy = "*"
 
 [packages]
 pika = "*"
 psycopg2-binary = "*"
 sqlalchemy = "*"
 google-cloud-storage = "*"
+pgpy = "*"
