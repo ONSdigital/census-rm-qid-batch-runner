@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: qid-batch-runner
-        image: eu.gcr.io/census-rm-jc-ci/rm/census-rm-qid-batch-runner:latest
+        image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
         command: [ "python", "-c" ]
         args: [ "while 1:0" ]
