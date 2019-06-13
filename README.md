@@ -47,7 +47,7 @@ Also needs rabbit and case-processor working in order to generate the print file
 ### Start a pod
 To start up the pod in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
-make start-pod
+make apply-deployment
 ```
 
 Then once the pod is ready connect to it with
