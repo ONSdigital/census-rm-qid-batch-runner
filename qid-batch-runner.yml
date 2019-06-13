@@ -50,28 +50,27 @@ spec:
               name: db-credentials
               key: password
         - name: OUR_PUBLIC_KEY_PATH
-            valueFrom:
-              configMapKeyRef:
-                name: pgp-config
-                key: our-public-key-path
+          value: "/root/.pgp-keys/our_public_key.asc"
         - name: OTHER_PUBLIC_KEY_PATH
-            valueFrom:
-              configMapKeyRef:
-                name: pgp-config
-                key: other-public-key-path
+          value: "/root/.pgp-keys/other_public_key.asc"
       volumeMounts:
         - name: cloud-sql-certs
           mountPath: "/root/.postgresql"
           readOnly: true
-        - name: pgp-public-keys
-          mountPath: "/pgp-public-keys"
+        - name: pgp-keys
+          mountPath: "/root/.pgp-keys"
           readOnly: true
   volumes:
     - name: cloud-sql-certs
       secret:
         secretName: cloud-sql-certs
         defaultMode: 0400
-    - name: pgp-public-keys
+    - name: pgp-keys
         secret:
-          secretName: pgp-public-keys
+          secretName: pgp-keys
           defaultMode: 0400
+          items:
+            - key: our-public-key
+              path: "our_public_key.asc"
+            - key: other-public-key
+              path: "other_public_key.asc"
