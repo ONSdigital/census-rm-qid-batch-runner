@@ -20,6 +20,13 @@
                 "sha256:9d5c20441baf0cb60a4ac34cc447c6c189024b6b4c6cd7877034f4965c464e49"
             ],
             "version": "==0.24.0"
+        "behave": {
+            "hashes": [
+                "sha256:b9662327aa53294c1351b0a9c369093ccec1d21026f050c3bd9b3e5cccf81a86",
+                "sha256:ebda1a6c9e5bfe95c5f9f0a2794e01c7098b3dde86c10a95d8621c5907ff6f1c"
+            ],
+            "index": "pypi",
+            "version": "==1.2.6"
         },
         "cachetools": {
             "hashes": [
@@ -151,6 +158,18 @@
             ],
             "index": "pypi",
             "version": "==0.4.3"
+        "parse": {
+            "hashes": [
+                "sha256:1b68657434d371e5156048ca4a0c5aea5afc6ca59a2fea4dd1a575354f617142"
+            ],
+            "version": "==1.12.0"
+        },
+        "parse-type": {
+            "hashes": [
+                "sha256:6e906a66f340252e4c324914a60d417d33a4bea01292ea9bbf68b4fc123be8c9",
+                "sha256:f596bdc75d3dd93036fbfe3d04127da9f6df0c26c36e01e76da85adef4336b3c"
+            ],
+            "version": "==0.4.2"
         },
         "pika": {
             "hashes": [
@@ -424,6 +443,11 @@
             ],
             "index": "pypi",
             "version": "==4.6.3"
+                "sha256:6032845e68a17a96e8da3088037f899b56357769a724122056265ca2ea1890ee",
+                "sha256:bea27a646a3d74cbbcf8d3d4a06b2dfc336baf3dc2cc85cf70ad0157e73e8322"
+            ],
+            "index": "pypi",
+            "version": "==4.6.2"
         },
         "pytest-cov": {
             "hashes": [
