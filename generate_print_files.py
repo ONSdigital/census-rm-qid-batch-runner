@@ -88,11 +88,12 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
 def generate_print_file(print_file_path: Path, uac_qid_links, config):
     with io.StringIO() as print_file_stream:
         csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
+        row_count = 0
         for row_count, result_row in enumerate(uac_qid_links, start=1):
             print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
                          'PRODUCTPACK_CODE': config["Pack code"]}
             csv_writer.writerow(print_row)
-        if uac_qid_links and row_count != int(config["Quantity"]):
+        if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
                                                f'questionnaire type = {config["Questionnaire type"]}')
         unencrypted_csv_contents = print_file_stream.getvalue()
