@@ -1,91 +1,106 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1beta1
+kind: Deployment
 metadata:
   name: qid-batch-runner
+  labels:
+    app: qid-batch-runner
 spec:
-  containers:
-    - name: qid-batch-runner
-      image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
-      imagePullPolicy: Always
-      command: [ "python", "-c" ]
-      args: [ "while 1:0" ]
-      env:
-        - name: RABBITMQ_SERVICE_HOST
-          value: rabbitmq
-        - name: RABBITMQ_SERVICE_PORT
-          value: "5672"
-        - name: RABBITMQ_USER
-          valueFrom:
-            secretKeyRef:
-              name: rabbitmq
-              key: rabbitmq-username
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: rabbitmq
-              key: rabbitmq-password
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-host
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-port
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: db-config
-              key: db-name
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-credentials
-              key: password
-        - name: SFTP_DIRECTORY
-          value: "upload/"
-        - name: SFTP_HOST
-          valueFrom:
-            secretKeyRef:
-              name: sftp-ssh-credentials
-              key: host
-        - name: SFTP_PORT
-          value: "22"
-        - name: SFTP_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: sftp-ssh-credentials
-              key: username
-        - name: SFTP_PASSPHRASE
-          valueFrom:
-            secretKeyRef:
-              name: sftp-ssh-credentials
-              key: passphrase
-        - name: SFTP_KEY_FILENAME
-          value: "/root/.sftp-ssh/id_rsa"
-      volumeMounts:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: qid-batch-runner
+      labels:
+        app: qid-batch-runner
+    spec:
+      containers:
+      - name: qid-batch-runner
+        image: eu.gcr.io/census-rm-jc-ci/rm/census-rm-qid-batch-runner:latest
+        imagePullPolicy: Always
+        command: [ "python", "-c" ]
+        args: [ "while 1:0" ]
+        env:
+          - name: RABBITMQ_SERVICE_HOST
+            value: rabbitmq
+          - name: RABBITMQ_SERVICE_PORT
+            value: "5672"
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-password
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-host
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-port
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: db-name
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+          - name: SFTP_DIRECTORY
+            value: "upload/"
+          - name: SFTP_HOST
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: host
+          - name: SFTP_PORT
+            value: "22"
+          - name: SFTP_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: username
+          - name: SFTP_PASSPHRASE
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: passphrase
+          - name: SFTP_KEY_FILENAME
+            value: "/root/.sftp-ssh/id_rsa"
+        volumeMounts:
+          - name: cloud-sql-certs
+            mountPath: "/root/.postgresql"
+            readOnly: true
+          - name: sftp-keys
+            mountPath: "/root/.sftp-ssh"
+            readOnly: true
+      volumes:
         - name: cloud-sql-certs
-          mountPath: "/root/.postgresql"
-          readOnly: true
+          secret:
+            secretName: cloud-sql-certs
+            defaultMode: 0400
         - name: sftp-keys
-          mountPath: "/root/.sftp-ssh"
-          readOnly: true
-  volumes:
-    - name: cloud-sql-certs
-      secret:
-        secretName: cloud-sql-certs
-        defaultMode: 0400
-    - name: sftp-keys
-      secret:
-        secretName: sftp-ssh-credentials
-        defaultMode: 0400
-        items:
-          - key: private-key
-            path: "id_rsa"
+          secret:
+            secretName: sftp-ssh-credentials
+            defaultMode: 0400
+            items:
+              - key: private-key
+                path: "id_rsa"
+
