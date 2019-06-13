@@ -4,8 +4,7 @@ from dump_queue_to_files import _rabbit_message_received_callback
 
 
 def test_rabbit_message_consume(cleanup_test_files):
-    file_paths = []
-    _rabbit_message_received_callback(Mock(), Mock(), None, b'{"key":"value"}', cleanup_test_files, file_paths)
+    _rabbit_message_received_callback(Mock(), Mock(), None, b'{"key":"value"}', cleanup_test_files)
 
     index = 0
 
