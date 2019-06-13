@@ -110,8 +110,8 @@ def setup_environment():
     required_env_vars = ('DB_PORT', 'DB_HOST', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD')
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
-    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'tests/resources/supplier_dummy_public_key.asc'
-    os.environ['OUR_PUBLIC_KEY_PATH'] = 'tests/resources/our_dummy_public_key.asc'
+    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'tests/resources/supplier_dummy_public.asc'
+    os.environ['OUR_PUBLIC_KEY_PATH'] = 'tests/resources/our_dummy_public.asc'
     return resource_file_path, output_file_path
 
 
