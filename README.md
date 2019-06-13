@@ -170,7 +170,7 @@ python dump_queue_to_files.py <queue name> <output directory>
 #### Dump message files to a Rabbit queue
 Run:
 ```bash
-dump_files_to_queue.py <queue name> <source directory> <destination directory>
+python dump_files_to_queue.py <queue name> <source directory> <destination directory>
 ```
 
 
