@@ -13,7 +13,7 @@ from generate_qid_batch import generate_messages_from_config_file_path
 
 @given('a QID batch has been generated')
 def generate_test_qid_batch(context):
-    context.batch_config_path = Path(__file__).parents[1].resolve().joinpath('acceptance_test_batch.csv')
+    context.batch_config_path = Path(__file__).parents[1].resolve().joinpath('resources', 'acceptance_test_batch.csv')
     context.batch_id = uuid.uuid4()
     with rabbit_connection_and_channel() as (connection, channel):
         request_test_qid_batch(context.batch_id)
@@ -22,7 +22,7 @@ def generate_test_qid_batch(context):
 
 def request_test_qid_batch(batch_id):
     generate_messages_from_config_file_path(
-        Path(__file__).parents[1].resolve().joinpath('acceptance_test_batch.csv'),
+        Path(__file__).parents[1].resolve().joinpath('resources', 'acceptance_test_batch.csv'),
         batch_id)
 
 

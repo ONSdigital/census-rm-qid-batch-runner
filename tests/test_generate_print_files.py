@@ -98,8 +98,8 @@ def test_copy_files_to_sftp():
 
     # When
     with patch('generate_print_files.sftp.paramiko.SSHClient') as client:
-        client.return_value.open_sftp.return_value = mock_storage_client
-        mock_storage_client.stat.return_value.st_mode = paramiko.sftp_client.stat.S_IFDIR
+        client.return_value.open_sftp.return_value = mock_storage_client  # mock the sftp client connection
+        mock_storage_client.stat.return_value.st_mode = paramiko.sftp_client.stat.S_IFDIR  # mock directory exists
         copy_files_to_sftp(test_files)
 
     mock_put_file = mock_storage_client.put
