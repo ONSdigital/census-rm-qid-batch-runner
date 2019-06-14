@@ -140,11 +140,11 @@ pipenv run python dump_files_to_queue.py <queue name> <source directory> <destin
 ### Run in Kubernetes
 
 #### Prerequisites
-The generate print files script needs a GCS bucket named `<PROJECT_ID>-<queue name>-queue-dump-files` in the project GCloud pointing at and bucket get/object create permissions.
+The generate print files script needs a GCS bucket named `<PROJECT_ID>-queue-dump-files` in the project GCloud pointing at and bucket get/object create permissions.
 To set this up:
 
 1. Navigate to the storage section in the GCP web UI
-1. Click create bucket and name it `<PROJECT_ID>-<queue name>-queue-dump-files`, set the `Default storage class` to `Regional` and then the location to `europe-west2`
+1. Click create bucket and name it `<PROJECT_ID>-queue-dump-files`, set the `Default storage class` to `Regional` and then the location to `europe-west2`
 1. In the new bucket, go to the permissions tab and edit the permissions of the `compute@...` service account to include `Storage Legacy Bucket Reader` and `Storage Object Creator`.
 
 Obviously, also needs Rabbit running.
@@ -164,13 +164,13 @@ This should connect you to a bash shell in the pod
 #### Dump a Rabbit queue to message files
 Run:
 ```bash
-python dump_queue_to_files.py <queue name> <output directory>
+python dump_queue_to_files.py <queue name> <number of messages> <output directory>
 ```
 
 #### Dump message files to a Rabbit queue
 Run:
 ```bash
-python dump_files_to_queue.py <queue name> <source directory> <destination directory>
+dump_files_to_queue.py <queue name> <source directory> <destination directory>
 ```
 
 
