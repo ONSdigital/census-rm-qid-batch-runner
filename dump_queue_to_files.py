@@ -65,7 +65,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    output_directory = dump_messages(args.queue_name, args.output_file_path)
+    output_directory = dump_messages(args.queue_name, args.queue_quantity, args.output_file_path)
     if not args.no_gcs:
         output_archive = Path(shutil.make_archive(str(output_directory), 'zip', str(output_directory)))
         copy_file_to_gcs(output_archive)
