@@ -9,6 +9,8 @@ from google.cloud import storage
 
 from rabbit_context import RabbitContext
 
+queue_quantity = 0
+
 
 def start_listening_to_rabbit_queue(queue, on_message_callback):
     rabbit = RabbitContext(queue_name=queue)
@@ -25,22 +27,22 @@ def _timeout_callback(rabbit):
     rabbit.close_connection()
 
 
-def dump_messages(queue_name, queue_quantity, output_file_path):
+def dump_messages(queue_name, output_file_path):
     directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}')
     directory_path.mkdir()
     start_listening_to_rabbit_queue(queue_name,
                                     functools.partial(_rabbit_message_received_callback,
-                                                      output_file_path=output_file_path,
-                                                      queue_quantity=queue_quantity))
+                                                      output_file_path=output_file_path))
     return directory_path
 
 
-def _rabbit_message_received_callback(ch, method, _properties, body, queue_quantity, output_file_path):
+def _rabbit_message_received_callback(ch, method, _properties, body, output_file_path):
     output_file = output_file_path.joinpath(f'{str(uuid.uuid4())}.json')
     output_file.write_text(body.decode("utf-8"))
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    queue_quantity = queue_quantity - 1
+    global queue_quantity
+    queue_quantity -= 1
     if queue_quantity == 0:
         ch.stop_consuming()
 
@@ -65,7 +67,9 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    output_directory = dump_messages(args.queue_name, args.queue_quantity, args.output_file_path)
+    global queue_quantity
+    queue_quantity = args.queue_quantity
+    output_directory = dump_messages(args.queue_name, args.output_file_path)
     if not args.no_gcs:
         output_archive = Path(shutil.make_archive(str(output_directory), 'zip', str(output_directory)))
         copy_file_to_gcs(output_archive)
