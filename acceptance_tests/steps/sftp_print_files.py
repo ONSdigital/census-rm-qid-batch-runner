@@ -30,4 +30,6 @@ def upload_print_files_to_sftp(context):
 def check_print_files_are_in_sftp(context):
     with SftpUtility() as sftp_client:
         sftp_contents = sftp_client._sftp_client.listdir('.')
-    assert all(fp.name in sftp_contents for fp in context.file_paths)
+        assert all(fp.name in sftp_contents for fp in context.file_paths)
+        for fp in context.file_paths:
+            sftp_client._sftp_client.remove(fp.name)
