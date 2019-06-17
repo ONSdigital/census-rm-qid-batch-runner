@@ -63,6 +63,32 @@ spec:
               secretKeyRef:
                 name: db-credentials
                 key: password
+          - name: PROJECT_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: project-name
+                name: project-config
+          - name: SFTP_DIRECTORY
+            value: "$(PROJECT_NAME)/upload"
+          - name: SFTP_HOST
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: host
+          - name: SFTP_PORT
+            value: "22"
+          - name: SFTP_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: username
+          - name: SFTP_PASSPHRASE
+            valueFrom:
+              secretKeyRef:
+                name: sftp-ssh-credentials
+                key: passphrase
+          - name: SFTP_KEY_FILENAME
+            value: "/root/.sftp-ssh/id_rsa"
           - name: OUR_PUBLIC_KEY_PATH
             value: "/root/.pgp-keys/our_public_key.asc"
           - name: OTHER_PUBLIC_KEY_PATH
@@ -70,6 +96,9 @@ spec:
         volumeMounts:
           - name: cloud-sql-certs
             mountPath: "/root/.postgresql"
+            readOnly: true
+          - name: sftp-keys
+            mountPath: "/root/.sftp-ssh"
             readOnly: true
           - name: pgp-keys
             mountPath: "/root/.pgp-keys"
@@ -79,6 +108,13 @@ spec:
           secret:
             secretName: cloud-sql-certs
             defaultMode: 0400
+        - name: sftp-keys
+          secret:
+            secretName: sftp-ssh-credentials
+            defaultMode: 0400
+            items:
+              - key: private-key
+                path: "id_rsa"
         - name: pgp-keys
           secret:
             secretName: pgp-keys

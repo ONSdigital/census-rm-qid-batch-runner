@@ -4,11 +4,12 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
+import paramiko
 import pgpy
 import pytest
 
 from exceptions import QidQuantityMismatchException
-from generate_print_files import generate_print_files_from_config_file_path, copy_files_to_gcs
+from generate_print_files import generate_print_files_from_config_file_path, copy_files_to_gcs, copy_files_to_sftp
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_print_files(cleanup_test_files,
@@ -91,6 +92,25 @@ def test_copy_files_to_gcs():
 
     # Then
     mock_upload_from_filename.assert_has_calls([call(filename=str(file_path)) for file_path in test_files])
+
+
+def test_copy_files_to_sftp():
+    # Given
+    test_files = [Path('test1'), Path('test2'), Path('test3')]
+    os.environ['SFTP_DIRECTORY'] = 'test_path'
+    mock_storage_client = Mock()
+
+    # When
+    with patch('generate_print_files.sftp.paramiko.SSHClient') as client:
+        client.return_value.open_sftp.return_value = mock_storage_client  # mock the sftp client connection
+        mock_storage_client.stat.return_value.st_mode = paramiko.sftp_client.stat.S_IFDIR  # mock directory exists
+        copy_files_to_sftp(test_files)
+
+    mock_put_file = mock_storage_client.put
+
+    # Then
+    mock_put_file.assert_has_calls(
+        [call(str(file_path), file_path.name) for file_path in test_files])
 
 
 def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):

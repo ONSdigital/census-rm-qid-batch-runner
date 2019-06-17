@@ -11,6 +11,7 @@ pytest-cov = "*"
 [packages]
 behave = "*"
 google-cloud-storage = "*"
+paramiko = "*"
 pgpy = "*"
 pika = "*"
 psycopg2-binary = "*"
