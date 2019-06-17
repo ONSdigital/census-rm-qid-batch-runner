@@ -29,7 +29,7 @@ def dump_messages(queue_name, output_file_path):
     print(f'Started processing Rabbit messages on queue {queue_name}')
     start_listening_to_rabbit_queue(queue_name,
                                     functools.partial(_rabbit_message_received_callback,
-                                                      output_file_path=output_file_path))
+                                                      output_file_path=directory_path))
     return directory_path
 
 
