@@ -24,7 +24,7 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    our_key, _ = pgpy.PGPKey.from_file('tests/resources/our_dummy_private.asc')
+    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
     encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H1*.csv')))
     encrypted_message_2 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H2*.csv')))
     with our_key.unlock(passphrase='test'):
@@ -108,8 +108,8 @@ def setup_environment():
     required_env_vars = ('DB_PORT', 'DB_HOST', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD')
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
-    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'tests/resources/supplier_dummy_public.asc'
-    os.environ['OUR_PUBLIC_KEY_PATH'] = 'tests/resources/our_dummy_public.asc'
+    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'dummy_keys/supplier_dummy_public.asc'
+    os.environ['OUR_PUBLIC_KEY_PATH'] = 'dummy_keys/our_dummy_public.asc'
     return resource_file_path
 
 

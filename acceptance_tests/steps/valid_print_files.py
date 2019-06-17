@@ -78,8 +78,8 @@ def validate_print_file_data(context):
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
 
-    our_key, _ = pgpy.PGPKey.from_file('acceptance_tests/resources/our_dummy_private.asc')
-    supplier_key, _ = pgpy.PGPKey.from_file('acceptance_tests/resources/supplier_dummy_private.asc')
+    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
+    supplier_key, _ = pgpy.PGPKey.from_file('dummy_keys/supplier_dummy_private.asc')
 
     check_encrypted_files(print_files, config_file, our_key, passphrase='test')
     check_encrypted_files(print_files, config_file, supplier_key, passphrase='supplier')
