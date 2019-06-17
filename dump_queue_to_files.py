@@ -22,14 +22,11 @@ def start_listening_to_rabbit_queue(queue, on_message_callback):
     rabbit.channel.start_consuming()
 
 
-def _timeout_callback(rabbit):
-    print('Message queue appears to be drained')
-    rabbit.close_connection()
-
-
 def dump_messages(queue_name, output_file_path):
     directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}')
     directory_path.mkdir()
+    print(f'Writing messages to path: {directory_path.stem}')
+    print(f'Started processing Rabbit messages on queue {queue_name}')
     start_listening_to_rabbit_queue(queue_name,
                                     functools.partial(_rabbit_message_received_callback,
                                                       output_file_path=output_file_path))
@@ -43,6 +40,10 @@ def _rabbit_message_received_callback(ch, method, _properties, body, output_file
 
     global queue_quantity
     queue_quantity -= 1
+
+    if queue_quantity % 500 == 0:
+        print(f'{queue_quantity} messages remaining to be written to files')
+
     if queue_quantity == 0:
         ch.stop_consuming()
 
@@ -71,6 +72,7 @@ def main():
     queue_quantity = args.queue_quantity
     output_directory = dump_messages(args.queue_name, args.output_file_path)
     if not args.no_gcs:
+        print(f'All {args.queue_quantity} messages received. Zipping up message files')
         output_archive = Path(shutil.make_archive(str(output_directory), 'zip', str(output_directory)))
         copy_file_to_gcs(output_archive)
 
