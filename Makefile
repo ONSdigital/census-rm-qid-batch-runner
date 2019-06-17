@@ -16,8 +16,8 @@ build: install test
 delete-pod:
 	kubectl delete deploy qid-batch-runner
 
-start-pod:
+apply-deployment:
 	kubectl apply -f qid-batch-runner.yml
 
 connect-to-pod:
-	kubectl exec -it qid-batch-runner /bin/bash
+	kubectl exec -it `kubectl get pods -o name | grep -m1 qid-batch-runner | cut -d'/' -f 2` -- /bin/bash
