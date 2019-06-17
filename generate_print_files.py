@@ -1,6 +1,7 @@
 import argparse
 import csv
 import hashlib
+import io
 import json
 import os
 import uuid
@@ -13,6 +14,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 
 import sftp
+from encryption import pgp_encrypt_message
 from exceptions import QidQuantityMismatchException
 
 
@@ -85,17 +87,22 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
 
 
 def generate_print_file(print_file_path: Path, uac_qid_links, config):
-    with open(print_file_path, 'w') as print_file:
-        csv_writer = csv.DictWriter(print_file, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
+    with io.StringIO() as print_file_stream:
+        csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
         row_count = 0
-        for result_row in uac_qid_links:
-            row_count += 1
+        for row_count, result_row in enumerate(uac_qid_links, start=1):
             print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
                          'PRODUCTPACK_CODE': config["Pack code"]}
             csv_writer.writerow(print_row)
         if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
                                                f'questionnaire type = {config["Questionnaire type"]}')
+        unencrypted_csv_contents = print_file_stream.getvalue()
+
+    encrypted_csv_message = pgp_encrypt_message(unencrypted_csv_contents)
+
+    with open(print_file_path, 'w') as print_file:
+        print_file.write(encrypted_csv_message)
 
 
 def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str):

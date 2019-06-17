@@ -198,6 +198,13 @@
             ],
             "version": "==0.4.2"
         },
+        "pgpy": {
+            "hashes": [
+                "sha256:04412dddd6882ac0c5d5daf4326c28d481421851a68e25e7ac8e06cc9dc2b902"
+            ],
+            "index": "pypi",
+            "version": "==0.4.3"
+        },
         "pika": {
             "hashes": [
                 "sha256:0c50285f00a8b4816f2c9a44469107d9e738ba3a90386f14b625d8cceef4f6ae",
@@ -327,6 +334,13 @@
                 "sha256:1a836406405730121ae9823e19c6e806c62bbad73f890574fff50efa4122c487"
             ],
             "version": "==4.0"
+        },
+        "singledispatch": {
+            "hashes": [
+                "sha256:5b06af87df13818d14f08a028e42f566640aef80805c3b50c5056b086e3c2b9c",
+                "sha256:833b46966687b3de7f438c761ac475213e53b306740f1abfaa86e1d1aae56aa8"
+            ],
+            "version": "==3.4.0.3"
         },
         "six": {
             "hashes": [

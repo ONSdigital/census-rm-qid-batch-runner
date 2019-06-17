@@ -1,11 +1,11 @@
 import json
 import os
-import shutil
 import uuid
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
 import paramiko
+import pgpy
 import pytest
 
 from exceptions import QidQuantityMismatchException
@@ -16,25 +16,31 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
                                                                                   mock_db_engine,
                                                                                   setup_environment):
     # Given
-    resource_file_path, output_file_path = setup_environment
+    resource_file_path = setup_environment
     config_file_path = resource_file_path.joinpath('test_batch.csv')
     batch_id = uuid.uuid4()
     mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
+    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    assert next(output_file_path.glob('D_FD_H1*.csv')).read_text() == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\n'
-                                                                       'test_uac_2|test_qid_2|||||||||||D_FD_H1\n')
-    assert next(output_file_path.glob('D_FD_H2*.csv')).read_text() == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\n'
+    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
+    encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H1*.csv')))
+    encrypted_message_2 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H2*.csv')))
+    with our_key.unlock(passphrase='test'):
+        message_1 = our_key.decrypt(encrypted_message_1).message
+        message_2 = our_key.decrypt(encrypted_message_2).message
+    assert message_1 == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\r\n'
+                         'test_uac_2|test_qid_2|||||||||||D_FD_H1\r\n')
+    assert message_2 == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\r\n'
 
 
 def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_mismatch(cleanup_test_files,
                                                                                     mock_db_engine,
                                                                                     setup_environment):
     # Given
-    resource_file_path, output_file_path = setup_environment
+    resource_file_path = setup_environment
     batch_id = uuid.uuid4()
     mock_test_batch_results(mock_db_engine, batch_id)
 
@@ -43,34 +49,32 @@ def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_misma
 
     # Then
     with pytest.raises(QidQuantityMismatchException, match='expected = 10, found = 2, questionnaire type = 01'):
-        generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
+        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_manifests(cleanup_test_files,
                                                                                 mock_db_engine,
                                                                                 setup_environment):
     # Given
-    resource_file_path, output_file_path = setup_environment
+    resource_file_path = setup_environment
     config_file_path = resource_file_path.joinpath('test_batch.csv')
     batch_id = uuid.uuid4()
     mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, output_file_path, batch_id)
+    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    manifest_file_1 = next(output_file_path.glob('D_FD_H1*.manifest'))
+    manifest_file_1 = next(cleanup_test_files.glob('D_FD_H1*.manifest'))
     manifest_1 = json.loads(manifest_file_1.read_text())
     assert manifest_1['description'] == 'Household Questionnaire pack for England'
-    assert manifest_1['files'][0]['sizeBytes'] == '82'
-    assert manifest_1['files'][0]['md5Sum'] == 'ba54b332897525b3318a45509f53a12c'
+    assert manifest_1['files'][0]['sizeBytes'] == '1634'
     assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
 
-    manifest_file_2 = next(output_file_path.glob('D_FD_H2*.manifest'))
+    manifest_file_2 = next(cleanup_test_files.glob('D_FD_H2*.manifest'))
     manifest_2 = json.loads(manifest_file_2.read_text())
     assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
-    assert manifest_2['files'][0]['sizeBytes'] == '41'
-    assert manifest_2['files'][0]['md5Sum'] == 'c346a4404612e58408fad219725b1720'
+    assert manifest_2['files'][0]['sizeBytes'] == '1626'
     assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
 
 
@@ -120,12 +124,13 @@ def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
 @pytest.fixture
 def setup_environment():
     resource_file_path = Path(__file__).parent.resolve().joinpath('resources')
-    output_file_path = Path(__file__).parent.resolve().joinpath('tmp_test_files')
 
     required_env_vars = ('DB_PORT', 'DB_HOST', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD')
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
-    return resource_file_path, output_file_path
+    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'dummy_keys/supplier_dummy_public.asc'
+    os.environ['OUR_PUBLIC_KEY_PATH'] = 'dummy_keys/our_dummy_public.asc'
+    return resource_file_path
 
 
 @pytest.fixture
@@ -134,13 +139,3 @@ def mock_db_engine():
     with patch('generate_print_files.create_engine') as patched_create_engine:
         patched_create_engine.return_value = mock_engine
         yield mock_engine
-
-
-@pytest.fixture
-def cleanup_test_files():
-    test_file_path = Path(__file__).parent.resolve().joinpath('tmp_test_files')
-    if test_file_path.exists():
-        shutil.rmtree(test_file_path)
-    test_file_path.mkdir()
-    yield
-    shutil.rmtree(test_file_path)
