@@ -1,8 +1,8 @@
-# Census RM QID Batch Runner [![Build Status](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner.svg?branch=master)](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner)
+# Census RM Unaddressed Batch Scripts [![Build Status](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner.svg?branch=master)](https://travis-ci.com/ONSdigital/census-rm-qid-batch-runner)
 
-A python script to tell RM to generate unaddressed QID/UAC pairs from a CSV config file.
+These are tactical scripts to be used during the early stages of Census rehearsal, when we will be generating unaddressed print files and the main sample print files.
 
-## Dependencies
+### Dependencies
 
 Install dependencies with 
 ```bash
@@ -15,9 +15,44 @@ The script needs a rabbit instance to talk to you can use the instance from [cen
 docker-compose up -d
 ``` 
 
+### Tests and Checks
+
+Run the unit tests and style/safety checks with
+
+```bash
+make test
+```
+
+### Docker
+Build the image tagged as `eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest` with
+```bash
+make build
+```
+
+### Importing this code as a package
+This repo contains a setup.py so that it can be installed through pip/pipenv as a github VCS dependency
+
+#### Install from master
+To install the package from master run 
+```bash
+pipenv install -e git+https://github.com/ONSdigital/census-rm-qid-batch-runner#egg=census_rm_qid_batch_runner
+```
+
+But note that pipenv locks with the commit hash as a ref, so any further commits to master in this repo will cause a `pipenv install --deploy` to fail until it is relocked since the remote ref will have changed.
+
+#### Install a release
+To install the package from a release tag run 
+```bash
+pipenv install -e git+https://github.com/ONSdigital/census-rm-qid-batch-runner@<RELEASE TAG>#egg=census_rm_qid_batch_runner
+```
+
+## Unaddressed QID/UAC Batch Runner
+
+A python script to tell RM to generate unaddressed QID/UAC pairs from a CSV config file.
+
 Look in [rabbit_context.py](/rabbit_context.py) to see the rabbit config.
 
-## Run Locally
+### Run Locally
 Run the scripts locally with
 
 ```bash
@@ -32,9 +67,9 @@ pipenv run python generate_print_files.py <path to config csv> <path to output d
 
 this will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
 
-## Run in Kubernetes
+### Run in Kubernetes
 
-### Prerequisites
+#### Prerequisites
 The generate print files script needs a GCS bucket named `<PROJECT_ID>-print-files` in the project GCloud pointing at and bucket get/object create permissions.
 To set this up:
 
@@ -44,7 +79,7 @@ To set this up:
 
 Also needs rabbit and case-processor working in order to generate the print files.
 
-### Start a pod
+#### Start a pod
 To start up the pod in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
 make apply-deployment
@@ -56,7 +91,7 @@ make connect-to-pod
 ```
 This should connect you to a bash shell in the pod
 
-### Request the QID/UAC pairs
+#### Request the QID/UAC pairs
 Once you're in the pods shell you can queue the messages to the request the QID/UAC pairs by running
 ```bash
 python generate_qid_batch.py unaddressed_batch.csv
@@ -73,7 +108,7 @@ kubectl cp <local path to csv> qid-batch-runner:/app
 
 Return to the connected shell in the pod, the file should then be available in the pod in `/app`.
 
-### Generate the print files
+#### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
 python generate_print_files.py unaddressed_batch.csv <print file directory path> <batch ID>
@@ -85,33 +120,58 @@ If don't want to upload the files to GCS then run with the `--no-gcs` flag.
 When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make delete-pod`.
 
 
-## Tests and Checks
+## Rabbit Queue Message Import/Export
 
-Run the unit tests and style/safety checks with
+Two python scripts to allow us to backup and restore the contents of a Rabbit queue:
+- Dump messages from a Rabbit queue to files
+- Dump message files to a Rabbit queue
 
+### Run Locally
+Run the script to export a Rabbit queue to message files with:
 ```bash
-make test
+pipenv run python dump_queue_to_files.py <queue name> <output directory> --no-gcs
 ```
 
-## Docker
-Build the image tagged as `eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest` with
+Run the script to export a Rabbit queue to message files with:
 ```bash
-make build
+pipenv run python dump_files_to_queue.py <queue name> <source directory> <destination directory>
 ```
 
-## Importing this code as a package
-This repo contains a setup.py so that it can be installed through pip/pipenv as a github VCS dependency
+### Run in Kubernetes
 
-### Install from master
-To install the package from master run 
+#### Prerequisites
+The generate print files script needs a GCS bucket named `<PROJECT_ID>-queue-dump-files` in the project GCloud pointing at and bucket get/object create permissions.
+To set this up:
+
+1. Navigate to the storage section in the GCP web UI
+1. Click create bucket and name it `<PROJECT_ID>-queue-dump-files`, set the `Default storage class` to `Regional` and then the location to `europe-west2`
+1. In the new bucket, go to the permissions tab and edit the permissions of the `compute@...` service account to include `Storage Legacy Bucket Reader` and `Storage Object Creator`.
+
+Obviously, also needs Rabbit running.
+
+#### Start a pod
+To start up the pod in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
-pipenv install -e git+https://github.com/ONSdigital/census-rm-qid-batch-runner#egg=census_rm_qid_batch_runner
+make start-pod
 ```
 
-But note that pipenv locks with the commit hash as a ref, so any further commits to master in this repo will cause a `pipenv install --deploy` to fail until it is relocked since the remote ref will have changed.
-
-### Install a release
-To install the package from a release tag run 
+Then once the pod is ready connect to it with
 ```bash
-pipenv install -e git+https://github.com/ONSdigital/census-rm-qid-batch-runner@<RELEASE TAG>#egg=census_rm_qid_batch_runner
+make connect-to-pod
 ```
+This should connect you to a bash shell in the pod
+
+#### Dump a Rabbit queue to message files
+Run:
+```bash
+python dump_queue_to_files.py <queue name> <number of messages> <output directory>
+```
+
+#### Dump message files to a Rabbit queue
+Run:
+```bash
+dump_files_to_queue.py <queue name> <source directory> <destination directory>
+```
+
+
+

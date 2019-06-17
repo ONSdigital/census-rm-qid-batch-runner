@@ -19,10 +19,7 @@ class TestRabbitContext(TestCase):
 
     def test_attempt_to_publish_message_with_closed_connection_raises_correct_exception(self, patch_pika):
         with RabbitContext() as rabbit:
-            def close_side_effect():
-                rabbit._connection.is_open = False
-
-            patch_pika.BlockingConnection.return_value.close.side_effect = close_side_effect
+            pass
 
         with self.assertRaises(RabbitConnectionClosedError):
             rabbit.publish_message('This should raise an exception', 'text')

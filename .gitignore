@@ -125,3 +125,5 @@ dmypy.json
 # Editor files
 .idea/
 .vscode/
+
+.DS_Store
