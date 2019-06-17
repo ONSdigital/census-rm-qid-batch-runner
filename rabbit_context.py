@@ -15,28 +15,42 @@ class RabbitContext:
         self.queue_name = kwargs.get('queue_name') or os.getenv('RABBITMQ_QUEUE', 'unaddressedRequestQueue')
 
     def __enter__(self):
-        self._open_connection()
+        self.open_connection()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._connection.close()
+        self.close_connection()
 
-    def _open_connection(self):
+    @property
+    def channel(self):
+        return self._channel
+
+    def open_connection(self):
         self._connection = pika.BlockingConnection(
             pika.ConnectionParameters(self._host,
                                       self._port,
                                       self._vhost,
                                       pika.PlainCredentials(self._user, self._password)))
+
         self._channel = self._connection.channel()
-        self._channel.queue_declare(queue=self.queue_name, durable=True)
+        if self.queue_name == 'localtest':
+            self._channel.queue_declare(queue=self.queue_name)
+
+        return self._connection
+
+    def close_connection(self):
+        self._connection.close()
+        del self._channel
+        del self._connection
 
     def publish_message(self, message: str, content_type: str):
-        if not self._connection.is_open:
+        if not hasattr(self, '_connection') or not self._connection.is_open:
             raise RabbitConnectionClosedError
-        self._channel.basic_publish(exchange=self._exchange,
-                                    routing_key=self.queue_name,
-                                    body=message,
-                                    properties=pika.BasicProperties(content_type=content_type))
+        self.channel.basic_publish(
+            exchange=self._exchange,
+            routing_key=self.queue_name,
+            body=message,
+            properties=pika.BasicProperties(content_type=content_type))
 
 
 class RabbitConnectionClosedError(Exception):
