@@ -4,6 +4,7 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
+import pgpy
 import pytest
 
 from exceptions import QidQuantityMismatchException
@@ -23,9 +24,15 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    assert next(cleanup_test_files.glob('D_FD_H1*.csv')).read_text() == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\n'
-                                                                         'test_uac_2|test_qid_2|||||||||||D_FD_H1\n')
-    assert next(cleanup_test_files.glob('D_FD_H2*.csv')).read_text() == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\n'
+    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
+    encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H1*.csv')))
+    encrypted_message_2 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H2*.csv')))
+    with our_key.unlock(passphrase='test'):
+        message_1 = our_key.decrypt(encrypted_message_1).message
+        message_2 = our_key.decrypt(encrypted_message_2).message
+    assert message_1 == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\r\n'
+                         'test_uac_2|test_qid_2|||||||||||D_FD_H1\r\n')
+    assert message_2 == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\r\n'
 
 
 def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_mismatch(cleanup_test_files,
@@ -60,15 +67,13 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     manifest_file_1 = next(cleanup_test_files.glob('D_FD_H1*.manifest'))
     manifest_1 = json.loads(manifest_file_1.read_text())
     assert manifest_1['description'] == 'Household Questionnaire pack for England'
-    assert manifest_1['files'][0]['sizeBytes'] == '82'
-    assert manifest_1['files'][0]['md5Sum'] == 'ba54b332897525b3318a45509f53a12c'
+    assert manifest_1['files'][0]['sizeBytes'] == '1634'
     assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
 
     manifest_file_2 = next(cleanup_test_files.glob('D_FD_H2*.manifest'))
     manifest_2 = json.loads(manifest_file_2.read_text())
     assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
-    assert manifest_2['files'][0]['sizeBytes'] == '41'
-    assert manifest_2['files'][0]['md5Sum'] == 'c346a4404612e58408fad219725b1720'
+    assert manifest_2['files'][0]['sizeBytes'] == '1626'
     assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
 
 
@@ -103,6 +108,8 @@ def setup_environment():
     required_env_vars = ('DB_PORT', 'DB_HOST', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD')
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
+    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'dummy_keys/supplier_dummy_public.asc'
+    os.environ['OUR_PUBLIC_KEY_PATH'] = 'dummy_keys/our_dummy_public.asc'
     return resource_file_path
 
 

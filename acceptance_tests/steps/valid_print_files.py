@@ -1,9 +1,11 @@
 import csv
+import io
 import os
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
 
+import pgpy
 import pika
 from behave import given, when, then
 
@@ -76,14 +78,31 @@ def validate_print_file_data(context):
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
 
-    for index, print_file in enumerate(print_files):
-        with open(print_file) as print_file_handler:
-            print_file_reader = csv.DictReader(print_file_handler, delimiter='|', fieldnames=PRINT_FILE_TEMPLATE)
+    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
+    supplier_key, _ = pgpy.PGPKey.from_file('dummy_keys/supplier_dummy_private.asc')
 
-            for row_count, row in enumerate(print_file_reader):
-                assert len(row['UAC']) == 16, 'Incorrect UAC length'
-                assert row['PRODUCTPACK_CODE'] == config_file[index]['Pack code'], \
-                    'PRODUCTPACK_CODE does not match config'
-                assert row['QUESTIONNAIRE_ID'][:2] == config_file[index]['Questionnaire type'], \
-                    'QUESTIONNAIRE_ID does not match config'
-            assert row_count + 1 == int(config_file[index]['Quantity']), 'Print file row count does not match config'
+    check_encrypted_files(print_files, config_file, our_key, passphrase='test')
+    check_encrypted_files(print_files, config_file, supplier_key, passphrase='supplier')
+
+
+def check_encrypted_files(print_files, config_file, key, passphrase):
+    for index, print_file in enumerate(print_files):
+
+        encrypted_print_file_csv = pgpy.PGPMessage.from_file(print_file)
+
+        with key.unlock(passphrase=passphrase):
+            print_file_csv = key.decrypt(encrypted_print_file_csv).message
+
+        print_file_reader = csv.DictReader(io.StringIO(print_file_csv),  # NB: requires a file-like object not string
+                                           delimiter='|',
+                                           lineterminator='\r\n',
+                                           fieldnames=PRINT_FILE_TEMPLATE)
+
+        for row_count, row in enumerate(print_file_reader, start=1):
+            assert len(row['UAC']) == 16, ('Incorrect UAC length', row['UAC'])
+            assert row['PRODUCTPACK_CODE'] == config_file[index]['Pack code'], \
+                ('PRODUCTPACK_CODE does not match config', row['PRODUCTPACK_CODE'])
+            assert row['QUESTIONNAIRE_ID'][:2] == config_file[index]['Questionnaire type'], \
+                'QUESTIONNAIRE_ID does not match config'
+        assert row_count == int(
+            config_file[index]['Quantity']), ('Print file row count does not match config', row_count)

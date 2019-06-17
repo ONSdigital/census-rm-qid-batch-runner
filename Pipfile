@@ -4,13 +4,14 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-pytest-cov = "*"
 flake8 = "*"
 pytest = "*"
+pytest-cov = "*"
 
 [packages]
+behave = "*"
+google-cloud-storage = "*"
+pgpy = "*"
 pika = "*"
 psycopg2-binary = "*"
 sqlalchemy = "*"
-google-cloud-storage = "*"
-behave = "*"
