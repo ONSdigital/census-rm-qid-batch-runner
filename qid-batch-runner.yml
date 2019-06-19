@@ -63,13 +63,11 @@ spec:
               secretKeyRef:
                 name: db-credentials
                 key: password
-          - name: PROJECT_NAME
+          - name: SFTP_DIRECTORY
             valueFrom:
               configMapKeyRef:
-                key: project-name
+                key: sftp-target-directory
                 name: project-config
-          - name: SFTP_DIRECTORY
-            value: "$(PROJECT_NAME)/upload"
           - name: SFTP_HOST
             valueFrom:
               secretKeyRef:
