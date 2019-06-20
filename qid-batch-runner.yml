@@ -21,8 +21,8 @@ spec:
       - name: qid-batch-runner
         image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
-        command: [ "python", "-c" ]
-        args: [ "while 1:0" ]
+        tty: true
+        stdin: true
         env:
           - name: RABBITMQ_SERVICE_HOST
             value: rabbitmq
@@ -101,6 +101,13 @@ spec:
           - name: pgp-keys
             mountPath: "/root/.pgp-keys"
             readOnly: true
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "2048Mi"
       volumes:
         - name: cloud-sql-certs
           secret:
