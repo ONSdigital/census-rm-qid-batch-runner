@@ -31,9 +31,9 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     with our_key.unlock(passphrase='test'):
         message_1 = our_key.decrypt(encrypted_message_1).message
         message_2 = our_key.decrypt(encrypted_message_2).message
-    assert message_1 == ('test_uac_1|test_qid_1|||||||||||D_FD_H1\r\n'
-                         'test_uac_2|test_qid_2|||||||||||D_FD_H1\r\n')
-    assert message_2 == 'test_uac_3|test_qid_3|||||||||||D_FD_H2\r\n'
+    assert message_1 == ('test_uac_1|test_qid_1||||||||||||D_FD_H1\r\n'
+                         'test_uac_2|test_qid_2||||||||||||D_FD_H1\r\n')
+    assert message_2 == 'test_uac_3|test_qid_3||||||||||||D_FD_H2\r\n'
 
 
 def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_mismatch(cleanup_test_files,
@@ -70,12 +70,14 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     assert manifest_1['description'] == 'Household Questionnaire pack for England'
     assert manifest_1['files'][0]['sizeBytes'] == '1634'
     assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
+    assert manifest_1['files'][0]['relativePath'].startswith('./')
 
     manifest_file_2 = next(cleanup_test_files.glob('D_FD_H2*.manifest'))
     manifest_2 = json.loads(manifest_file_2.read_text())
     assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
     assert manifest_2['files'][0]['sizeBytes'] == '1626'
     assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
+    assert manifest_1['files'][0]['relativePath'].startswith('./')
 
 
 def test_copy_files_to_gcs():

@@ -17,9 +17,9 @@ import sftp
 from encryption import pgp_encrypt_message
 from exceptions import QidQuantityMismatchException
 
-
-PRINT_FILE_TEMPLATE = ('UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'FORENAME', 'SURNAME',
-                       'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
+PRINT_FILE_TEMPLATE = (
+    'UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'COORDINATOR_ID', 'FORENAME', 'SURNAME',
+    'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
 
 PRODUCTPACK_CODE_TO_DESCRIPTION = {
     'D_FD_H1': 'Household Questionnaire pack for England',
@@ -120,7 +120,7 @@ def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
         'files': [
             {
                 'name': print_file_path.name,
-                'relativePath': print_file_path.name,  # TODO Match this to SFTP directory structure
+                'relativePath': f'./{print_file_path.name}',
                 'sourceName': 'ONS_RM',
                 'sizeBytes': str(print_file_path.stat().st_size)
             }
