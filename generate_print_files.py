@@ -120,7 +120,7 @@ def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
         'files': [
             {
                 'name': print_file_path.name,
-                'relativePath': f'./{print_file_path.name}',
+                'relativePath': './',
                 'sourceName': 'ONS_RM',
                 'sizeBytes': str(print_file_path.stat().st_size)
             }
