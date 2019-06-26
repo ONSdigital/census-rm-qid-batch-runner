@@ -75,7 +75,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
     file_paths = []
     for config_row in config_file_reader:
         uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'], batch_id)
-        filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}'
+        filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")}'
         print_file_path = output_file_path.joinpath(f'{filename}.csv')
         generate_print_file(print_file_path, uac_qid_links, config_row)
         file_paths.append(print_file_path)
@@ -111,24 +111,22 @@ def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, prod
 
 
 def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
-    manifest = {
+    return {
         'schemaVersion': '1',
         'description': PRODUCTPACK_CODE_TO_DESCRIPTION[productpack_code],
         'dataset': 'QM3.1',
         'version': '1',
         'manifestCreated': datetime.utcnow().isoformat(),
+        'sourceName': 'ONS_RM',
         'files': [
             {
                 'name': print_file_path.name,
                 'relativePath': './',
-                'sourceName': 'ONS_RM',
-                'sizeBytes': str(print_file_path.stat().st_size)
+                'sizeBytes': str(print_file_path.stat().st_size),
+                'md5Sum': hashlib.md5(print_file_path.read_text().encode()).hexdigest()
             }
         ]
     }
-    with open(print_file_path, 'rb') as print_file:
-        manifest['files'][0]['md5Sum'] = hashlib.md5(print_file.read()).hexdigest()
-    return manifest
 
 
 def copy_files_to_gcs(file_paths: Collection[Path]):

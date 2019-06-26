@@ -1,6 +1,7 @@
 import json
 import os
 import uuid
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch, Mock, call
 
@@ -12,9 +13,9 @@ from exceptions import QidQuantityMismatchException
 from generate_print_files import generate_print_files_from_config_file_path, copy_files_to_gcs, copy_files_to_sftp
 
 
-def test_generate_print_files_from_config_file_path_generates_correct_print_files(cleanup_test_files,
-                                                                                  mock_db_engine,
-                                                                                  setup_environment):
+def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents(cleanup_test_files,
+                                                                                          mock_db_engine,
+                                                                                          setup_environment):
     # Given
     resource_file_path = setup_environment
     config_file_path = resource_file_path.joinpath('test_batch.csv')
@@ -34,6 +35,26 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     assert message_1 == ('test_uac_1|test_qid_1||||||||||||D_FD_H1\r\n'
                          'test_uac_2|test_qid_2||||||||||||D_FD_H1\r\n')
     assert message_2 == 'test_uac_3|test_qid_3||||||||||||D_FD_H2\r\n'
+
+
+def test_generate_print_files_from_config_file_path_generates_correct_print_file_names(cleanup_test_files,
+                                                                                       mock_db_engine,
+                                                                                       setup_environment):
+    # Given
+    resource_file_path = setup_environment
+    config_file_path = resource_file_path.joinpath('test_batch.csv')
+    batch_id = uuid.uuid4()
+    mock_test_batch_results(mock_db_engine, batch_id)
+
+    # When
+    with patch('generate_print_files.datetime') as patched_datetime:
+        # Patch the datetime to return a fixed time we can test against
+        patched_datetime.utcnow.return_value = datetime(2013, 9, 30, 7, 6, 5)
+        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+
+    # Then
+    assert cleanup_test_files.joinpath('D_FD_H1_2013-09-30T07-06-05.csv').exists()
+    assert cleanup_test_files.joinpath('D_FD_H2_2013-09-30T07-06-05.csv').exists()
 
 
 def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_mismatch(cleanup_test_files,
@@ -71,13 +92,15 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     assert manifest_1['files'][0]['sizeBytes'] == '1634'
     assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
     assert manifest_1['files'][0]['relativePath'].startswith('./')
+    assert manifest_1['sourceName'] == 'ONS_RM'
 
     manifest_file_2 = next(cleanup_test_files.glob('D_FD_H2*.manifest'))
     manifest_2 = json.loads(manifest_file_2.read_text())
     assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
     assert manifest_2['files'][0]['sizeBytes'] == '1626'
     assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
-    assert manifest_1['files'][0]['relativePath'].startswith('./')
+    assert manifest_2['files'][0]['relativePath'].startswith('./')
+    assert manifest_2['sourceName'] == 'ONS_RM'
 
 
 def test_copy_files_to_gcs():
