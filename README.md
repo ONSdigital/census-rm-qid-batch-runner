@@ -152,7 +152,7 @@ Obviously, also needs Rabbit running.
 #### Start a pod
 To start up the pod in Kubernetes, point your kubectl context at the cluster you wish to run in, then run
 ```bash
-make start-pod
+make apply-deployment
 ```
 
 Then once the pod is ready connect to it with
