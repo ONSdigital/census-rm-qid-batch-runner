@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import os
+import urllib
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -57,7 +58,7 @@ def create_db_engine():
     db_name = os.getenv('DB_NAME', 'postgres')
     db_host = os.getenv('DB_HOST', 'localhost')
     db_username = os.getenv('DB_USERNAME', 'postgres')
-    db_password = os.getenv('DB_PASSWORD', 'postgres')
+    db_password = urllib.parse.quote_plus(os.getenv('DB_PASSWORD', 'postgres'))
     db_uri = f'postgresql://{db_username}:{db_password}@{db_host}:{db_port}/{db_name}'
     return create_engine(db_uri)
 
