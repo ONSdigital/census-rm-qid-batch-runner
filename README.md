@@ -71,7 +71,13 @@ export SFTP_PASSPHRASE=secret
 export SFTP_DIRECTORY="Documents/sftp/"
 export SFTP_KEY_FILENAME="dummy_keys/dummy_rsa"
 export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
+export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
 EOF
+```
+
+```bash
+Create local output directory directory
+e.g mkdir print_files
 ```
 
 Then run
