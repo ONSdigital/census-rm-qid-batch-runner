@@ -61,6 +61,25 @@ pipenv run python generate_qid_batch.py <path to config csv>
 
 to request the qid/uac pairs, then once all those message have been ingested
 
+Set your environment variables using this command
+```bash
+cat > .env << EOF
+export SFTP_HOST=localhost
+export SFTP_PORT=122
+export SFTP_USERNAME=centos
+export SFTP_PASSPHRASE=secret
+export SFTP_DIRECTORY="Documents/sftp/"
+export SFTP_KEY_FILENAME="dummy_keys/dummy_rsa"
+export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
+export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
+EOF
+```
+Create local output directory
+```bash
+mkdir print_files
+```
+
+Then run
 ```bash
 pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
 ```
