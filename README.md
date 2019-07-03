@@ -74,10 +74,9 @@ export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
 export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
 EOF
 ```
-
-```
-Create local output directory 
-e.g mkdir print_files
+Create local output directory
+```bash
+ mkdir print_files
 ```
 
 Then run
