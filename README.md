@@ -75,8 +75,8 @@ export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
 EOF
 ```
 
-```bash
-Create local output directory directory
+```
+Create local output directory 
 e.g mkdir print_files
 ```
 
