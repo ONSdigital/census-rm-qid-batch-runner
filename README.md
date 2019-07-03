@@ -76,7 +76,7 @@ EOF
 ```
 Create local output directory
 ```bash
-mkdir print_files
+mkdir print_files++++++++
 ```
 
 Then run
