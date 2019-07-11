@@ -127,5 +127,5 @@ spec:
             items:
               - key: our-public-key
                 path: "our_public_key.asc"
-              - key: other-public-key
+              - key: qm-supplier-public-key
                 path: "other_public_key.asc"
