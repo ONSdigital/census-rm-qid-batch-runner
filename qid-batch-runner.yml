@@ -66,7 +66,7 @@ spec:
           - name: SFTP_DIRECTORY
             valueFrom:
               configMapKeyRef:
-                key: sftp-target-directory
+                key: sftp-qm-supplier-directory
                 name: project-config
           - name: SFTP_HOST
             valueFrom:
