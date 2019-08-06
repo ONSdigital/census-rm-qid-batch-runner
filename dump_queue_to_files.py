@@ -9,6 +9,7 @@ from google.cloud import storage
 
 from rabbit_context import RabbitContext
 
+
 queue_quantity = 0
 
 
@@ -25,17 +26,18 @@ def start_listening_to_rabbit_queue(queue, on_message_callback):
 def dump_messages(queue_name, output_file_path):
     directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}')
     directory_path.mkdir()
+    output_file_path = directory_path.joinpath(f'{str(uuid.uuid4())}.dump')
     print(f'Writing messages to path: {directory_path.stem}')
     print(f'Started processing Rabbit messages on queue {queue_name}')
     start_listening_to_rabbit_queue(queue_name,
                                     functools.partial(_rabbit_message_received_callback,
-                                                      output_file_path=directory_path))
+                                                      output_file_path=output_file_path))
     return directory_path
 
 
-def _rabbit_message_received_callback(ch, method, _properties, body, output_file_path):
-    output_file = output_file_path.joinpath(f'{str(uuid.uuid4())}.json')
-    output_file.write_text(body.decode("utf-8"))
+def _rabbit_message_received_callback(ch, method, _properties, body: bytes, output_file_path: Path):
+    with output_file_path.open('a') as fp:
+        fp.write(f'{body.decode("utf-8")}\n')
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
     global queue_quantity
