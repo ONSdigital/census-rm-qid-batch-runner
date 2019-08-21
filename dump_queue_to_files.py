@@ -23,8 +23,8 @@ def start_listening_to_rabbit_queue(queue, on_message_callback):
     rabbit.channel.start_consuming()
 
 
-def dump_messages(queue_name, output_file_path):
-    directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%M-%dT%H-%M-%S")}')
+def dump_messages(queue_name, output_file_path) -> Path:
+    directory_path = output_file_path.joinpath(f'{queue_name}_{datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")}')
     directory_path.mkdir()
     output_file_path = directory_path.joinpath(f'{str(uuid.uuid4())}.dump')
     print(f'Writing messages to path: {directory_path.stem}')
