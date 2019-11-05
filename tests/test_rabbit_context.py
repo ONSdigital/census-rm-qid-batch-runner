@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch
 
+from pika.spec import PERSISTENT_DELIVERY_MODE
+
 from rabbit_context import RabbitContext, RabbitConnectionClosedError
 
 
@@ -28,7 +30,7 @@ class TestRabbitContext(TestCase):
         with RabbitContext() as rabbit:
             rabbit.publish_message('Test message body', 'text')
 
-        patch_pika.BasicProperties.assert_called_once_with(content_type='text')
+        patch_pika.BasicProperties.assert_called_once_with(content_type='text', delivery_mode=PERSISTENT_DELIVERY_MODE)
         patched_basic_publish = patch_pika.BlockingConnection.return_value.channel.return_value.basic_publish
         patched_basic_publish.assert_called_once_with(exchange=rabbit._exchange,
                                                       routing_key=rabbit.queue_name,
