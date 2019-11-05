@@ -51,8 +51,7 @@ class RabbitContext:
             exchange=self._exchange,
             routing_key=self.queue_name,
             body=message,
-            properties=pika.BasicProperties(content_type=content_type, headers=headers,
-                                            delivery_mode=PERSISTENT_DELIVERY_MODE))
+            properties=pika.BasicProperties(content_type=content_type, delivery_mode=PERSISTENT_DELIVERY_MODE))
 
 
 class RabbitConnectionClosedError(Exception):
