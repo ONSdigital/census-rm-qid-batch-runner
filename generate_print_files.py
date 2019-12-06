@@ -48,7 +48,7 @@ PRODUCTPACK_CODE_TO_DESCRIPTION = {
 
 def _get_uac_qid_links(engine, questionnaire_type, batch_id: uuid.UUID):
     uac_qid_links_query = text("SELECT * FROM casev2.uac_qid_link WHERE SUBSTRING(qid FROM 1 FOR 2)"
-                               " = :questionnaire_type AND caze_case_ref IS NULL AND batch_id = :batch_id")
+                               " = :questionnaire_type AND caze_case_id IS NULL AND batch_id = :batch_id")
 
     return engine.execute(uac_qid_links_query, questionnaire_type=questionnaire_type, batch_id=str(batch_id))
 
