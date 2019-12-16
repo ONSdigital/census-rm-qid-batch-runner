@@ -117,14 +117,14 @@ def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
         'description': PRODUCTPACK_CODE_TO_DESCRIPTION[productpack_code],
         'dataset': 'QM3.1',
         'version': '1',
-        'manifestCreated': datetime.utcnow().isoformat(),
+        'manifestCreated': datetime.utcnow().isoformat(timespec='milliseconds') + 'Z',
         'sourceName': 'ONS_RM',
         'files': [
             {
                 'name': print_file_path.name,
                 'relativePath': './',
                 'sizeBytes': str(print_file_path.stat().st_size),
-                'md5Sum': hashlib.md5(print_file_path.read_text().encode()).hexdigest()
+                'md5sum': hashlib.md5(print_file_path.read_text().encode()).hexdigest()
             }
         ]
     }
