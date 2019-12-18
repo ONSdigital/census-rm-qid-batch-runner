@@ -91,10 +91,19 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
     with io.StringIO() as print_file_stream:
         csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
         row_count = 0
-        for row_count, result_row in enumerate(uac_qid_links, start=1):
-            print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
-                         'PRODUCTPACK_CODE': config["Pack code"]}
-            csv_writer.writerow(print_row)
+
+        if config['Pack code'].startswith('D_CCS'):
+            for row_count, result_row in enumerate(uac_qid_links, start=1):
+                print_row = {'QUESTIONNAIRE_ID': result_row['qid'],
+                             'PRODUCTPACK_CODE': config["Pack code"]}
+                csv_writer.writerow(print_row)
+
+        else:
+            for row_count, result_row in enumerate(uac_qid_links, start=1):
+                print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
+                             'PRODUCTPACK_CODE': config["Pack code"]}
+                csv_writer.writerow(print_row)
+
         if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
                                                f'questionnaire type = {config["Questionnaire type"]}')

@@ -68,7 +68,7 @@ export SFTP_HOST=localhost
 export SFTP_PORT=122
 export SFTP_USERNAME=centos
 export SFTP_PASSPHRASE=secret
-export SFTP_DIRECTORY="Documents/sftp/"
+export SFTP_DIRECTORY="qmprint_dev/print_services"
 export SFTP_KEY_FILENAME="dummy_keys/dummy_rsa"
 export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
 export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
@@ -84,7 +84,14 @@ Then run
 pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
 ```
 
-this will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
+This will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
+
+If the print file is for CCS unaddressed questionnaires, then the UAC's generated for the QID's will not be included 
+
+The print files will be encrypted so in order to decrypt them and read the contents, import the key with
+```bash
+gpg --import dummy_keys/our_dummy_private.asc
+```
 
 ### Run in Kubernetes
 

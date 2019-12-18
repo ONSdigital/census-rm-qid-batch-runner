@@ -73,7 +73,7 @@ def validate_print_file_data(context):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
     print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv']
 
-    assert len(manifests) == 3, 'Incorrect number of manifest files'
+    assert len(manifests) == 4, 'Incorrect number of manifest files'
 
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
@@ -98,11 +98,21 @@ def check_encrypted_files(print_files, config_file, key, passphrase):
                                            lineterminator='\r\n',
                                            fieldnames=PRINT_FILE_TEMPLATE)
 
-        for row_count, row in enumerate(print_file_reader, start=1):
-            assert len(row['UAC']) == 16, ('Incorrect UAC length', row['UAC'])
-            assert row['PRODUCTPACK_CODE'] == config_file[index]['Pack code'], \
-                ('PRODUCTPACK_CODE does not match config', row['PRODUCTPACK_CODE'])
-            assert row['QUESTIONNAIRE_ID'][:2] == config_file[index]['Questionnaire type'], \
-                'QUESTIONNAIRE_ID does not match config'
+        if print_file.name.startswith('D_CCS'):
+            for row_count, row in enumerate(print_file_reader, start=1):
+                assert not row['UAC'], ('UAC should not exist on CCS unaddressed print file', row['UAC'])
+                assert row['PRODUCTPACK_CODE'] == config_file[index]['Pack code'], \
+                    ('PRODUCTPACK_CODE does not match config', row['PRODUCTPACK_CODE'])
+                assert row['QUESTIONNAIRE_ID'][:2] == config_file[index]['Questionnaire type'], \
+                    'QUESTIONNAIRE_ID does not match config'
+
+        else:
+            for row_count, row in enumerate(print_file_reader, start=1):
+                assert len(row['UAC']) == 16, ('Incorrect UAC length', row['UAC'])
+                assert row['PRODUCTPACK_CODE'] == config_file[index]['Pack code'], \
+                    ('PRODUCTPACK_CODE does not match config', row['PRODUCTPACK_CODE'])
+                assert row['QUESTIONNAIRE_ID'][:2] == config_file[index]['Questionnaire type'], \
+                    'QUESTIONNAIRE_ID does not match config'
+
         assert row_count == int(
             config_file[index]['Quantity']), ('Print file row count does not match config', row_count)
