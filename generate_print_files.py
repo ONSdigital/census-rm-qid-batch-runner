@@ -93,16 +93,9 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
         row_count = 0
 
         if config['Pack code'].startswith('D_CCS'):
-            for row_count, result_row in enumerate(uac_qid_links, start=1):
-                print_row = {'QUESTIONNAIRE_ID': result_row['qid'],
-                             'PRODUCTPACK_CODE': config["Pack code"]}
-                csv_writer.writerow(print_row)
-
+            row_count = write_print_file_rows_ccs(config, csv_writer, row_count, uac_qid_links)
         else:
-            for row_count, result_row in enumerate(uac_qid_links, start=1):
-                print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
-                             'PRODUCTPACK_CODE': config["Pack code"]}
-                csv_writer.writerow(print_row)
+            row_count = write_print_file_rows(config, csv_writer, row_count, uac_qid_links)
 
         if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
@@ -113,6 +106,22 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
 
     with open(print_file_path, 'w') as print_file:
         print_file.write(encrypted_csv_message)
+
+
+def write_print_file_rows_ccs(config, csv_writer, row_count, uac_qid_links):
+    for row_count, result_row in enumerate(uac_qid_links, start=1):
+        print_row = {'QUESTIONNAIRE_ID': result_row['qid'],
+                     'PRODUCTPACK_CODE': config["Pack code"]}
+        csv_writer.writerow(print_row)
+    return row_count
+
+
+def write_print_file_rows(config, csv_writer, row_count, uac_qid_links):
+    for row_count, result_row in enumerate(uac_qid_links, start=1):
+        print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
+                     'PRODUCTPACK_CODE': config["Pack code"]}
+        csv_writer.writerow(print_row)
+    return row_count
 
 
 def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str):

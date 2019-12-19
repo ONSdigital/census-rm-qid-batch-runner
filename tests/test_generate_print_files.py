@@ -53,10 +53,10 @@ def test_unaddressed_ccs_print_files_leaves_out_UAC(cleanup_test_files,
     # Then
     our_key, _ = pgpy.PGPKey.from_file(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_private.asc'))
 
-    encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_CCS_CHP2W*.csv')))
+    encrypted_message = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_CCS_CHP2W*.csv')))
     with our_key.unlock(passphrase='test'):
-        message_1 = our_key.decrypt(encrypted_message_1).message
-    assert message_1 == '|test_qid_1||||||||||||D_CCS_CHP2W\r\n'
+        message = our_key.decrypt(encrypted_message).message
+    assert message == '|test_qid_1||||||||||||D_CCS_CHP2W\r\n'
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_print_file_names(cleanup_test_files,
