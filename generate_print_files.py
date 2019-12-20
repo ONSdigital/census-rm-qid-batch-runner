@@ -77,7 +77,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
     for config_row in config_file_reader:
         uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'], batch_id)
         filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")}'
-        print_file_path = output_file_path.joinpath(f'{filename}.csv')
+        print_file_path = output_file_path.joinpath(f'{filename}.csv.gpg')
         generate_print_file(print_file_path, uac_qid_links, config_row)
         file_paths.append(print_file_path)
         manifest_file_path = output_file_path.joinpath(f'{filename}.manifest')
