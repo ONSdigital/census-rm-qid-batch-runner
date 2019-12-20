@@ -10,7 +10,8 @@ import pgpy
 import pytest
 
 from exceptions import QidQuantityMismatchException
-from generate_print_files import generate_print_files_from_config_file_path, copy_files_to_gcs, copy_files_to_sftp
+from generate_print_files import generate_print_files_from_config_file_path, copy_files_to_gcs, copy_files_to_sftp, \
+    create_manifest
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents(cleanup_test_files,
@@ -26,9 +27,9 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
-    encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H1*.csv')))
-    encrypted_message_2 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H2*.csv')))
+    our_key, _ = pgpy.PGPKey.from_file(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_private.asc'))
+    encrypted_message_1 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H1*.csv.gpg')))
+    encrypted_message_2 = pgpy.PGPMessage.from_file(next(cleanup_test_files.glob('D_FD_H2*.csv.gpg')))
     with our_key.unlock(passphrase='test'):
         message_1 = our_key.decrypt(encrypted_message_1).message
         message_2 = our_key.decrypt(encrypted_message_2).message
@@ -53,8 +54,8 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
         generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    assert cleanup_test_files.joinpath('D_FD_H1_2013-09-30T07-06-05.csv').exists()
-    assert cleanup_test_files.joinpath('D_FD_H2_2013-09-30T07-06-05.csv').exists()
+    assert cleanup_test_files.joinpath('D_FD_H1_2013-09-30T07-06-05.csv.gpg').exists()
+    assert cleanup_test_files.joinpath('D_FD_H2_2013-09-30T07-06-05.csv.gpg').exists()
 
 
 def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_mismatch(cleanup_test_files,
@@ -86,21 +87,19 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    manifest_file_1 = next(cleanup_test_files.glob('D_FD_H1*.manifest'))
-    manifest_1 = json.loads(manifest_file_1.read_text())
-    assert manifest_1['description'] == 'Household Questionnaire pack for England'
-    assert manifest_1['files'][0]['sizeBytes'] == '1634'
-    assert manifest_1['files'][0]['name'] == f'{manifest_file_1.stem}.csv'
-    assert manifest_1['files'][0]['relativePath'].startswith('./')
-    assert manifest_1['sourceName'] == 'ONS_RM'
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire pack for England')
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H2', 'Household Questionnaire pack for Wales (English)')
 
-    manifest_file_2 = next(cleanup_test_files.glob('D_FD_H2*.manifest'))
-    manifest_2 = json.loads(manifest_file_2.read_text())
-    assert manifest_2['description'] == 'Household Questionnaire pack for Wales (English)'
-    assert manifest_2['files'][0]['sizeBytes'] == '1626'
-    assert manifest_2['files'][0]['name'] == f'{manifest_file_2.stem}.csv'
-    assert manifest_2['files'][0]['relativePath'].startswith('./')
-    assert manifest_2['sourceName'] == 'ONS_RM'
+
+def check_manifest_file_contents(cleanup_test_files, pack_code, description):
+    manifest_file = next(cleanup_test_files.glob(f'{pack_code}*.manifest'))
+    print_file = next(cleanup_test_files.glob(f'{pack_code}*.csv.gpg'))
+    manifest = json.loads(manifest_file.read_text())
+    assert manifest['description'] == description
+    assert manifest['files'][0]['sizeBytes'] == str(print_file.stat().st_size)
+    assert manifest['files'][0]['name'] == f'{manifest_file.stem}.csv.gpg'
+    assert manifest['files'][0]['relativePath'].startswith('./')
+    assert manifest['sourceName'] == 'ONS_RM'
 
 
 def test_copy_files_to_gcs():
@@ -138,6 +137,21 @@ def test_copy_files_to_sftp():
         [call(str(file_path), file_path.name) for file_path in test_files])
 
 
+def test_create_manifest_formats_manifest_created_correctly_on_0_milliseconds(cleanup_test_files,
+                                                                              setup_environment):
+    # Given
+    resource_file_path = setup_environment
+    print_file_path = resource_file_path.joinpath('print_files', 'D_FD_H1_2019-12-19T08-18-49.csv.gpg')
+
+    # When
+    with patch('generate_print_files.datetime') as mock_datetime:
+        mock_datetime.utcnow.return_value = datetime(2019, 12, 25, 0, 0, 0, 0)
+        manifest = create_manifest(print_file_path, 'D_FD_H1')
+
+    # Then
+    assert manifest['manifestCreated'] == '2019-12-25T00:00:00.000Z'
+
+
 def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
     mock_engine.execute.side_effect = (
         ({'qid': 'test_qid_1', 'uac': 'test_uac_1', 'batch_id': str(batch_id)},
@@ -153,8 +167,9 @@ def setup_environment():
     required_env_vars = ('DB_PORT', 'DB_HOST', 'DB_NAME', 'DB_USERNAME', 'DB_PASSWORD')
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
-    os.environ['OTHER_PUBLIC_KEY_PATH'] = 'dummy_keys/supplier_dummy_public.asc'
-    os.environ['OUR_PUBLIC_KEY_PATH'] = 'dummy_keys/our_dummy_public.asc'
+    os.environ['OTHER_PUBLIC_KEY_PATH'] = str(
+        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_dummy_public.asc'))
+    os.environ['OUR_PUBLIC_KEY_PATH'] = str(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_public.asc'))
     return resource_file_path
 
 
