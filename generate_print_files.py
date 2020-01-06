@@ -90,10 +90,11 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
 def generate_print_file(print_file_path: Path, uac_qid_links, config):
     with io.StringIO() as print_file_stream:
         csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
-        row_count = 0
+
+        row_builder = build_ccs_print_row if is_ccs_pack_code(config['Pack code']) else build_print_row
+
         for row_count, result_row in enumerate(uac_qid_links, start=1):
-            print_row = {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'],
-                         'PRODUCTPACK_CODE': config["Pack code"]}
+            print_row = row_builder(result_row, config)
             csv_writer.writerow(print_row)
         if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
@@ -104,6 +105,18 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
 
     with open(print_file_path, 'w') as print_file:
         print_file.write(encrypted_csv_message)
+
+
+def is_ccs_pack_code(pack_code):
+    return pack_code.startswith('D_CCS')
+
+
+def build_print_row(result_row, config):
+    return {'UAC': result_row['uac'], 'QUESTIONNAIRE_ID': result_row['qid'], 'PRODUCTPACK_CODE': config["Pack code"]}
+
+
+def build_ccs_print_row(result_row, config):
+    return {'QUESTIONNAIRE_ID': result_row['qid'], 'PRODUCTPACK_CODE': config["Pack code"]}
 
 
 def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str):
