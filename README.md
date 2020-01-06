@@ -93,6 +93,10 @@ The print files will be encrypted so in order to decrypt them and read the conte
 gpg --import dummy_keys/our_dummy_private.asc
 ```
 
+Then run the following command in the terminal to view the decrypted data:
+```bash
+gpg --decrypt <path to output directory>/<file_name>
+```
 ### Run in Kubernetes
 
 #### Prerequisites
