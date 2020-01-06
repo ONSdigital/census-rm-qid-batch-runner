@@ -71,7 +71,7 @@ def generate_print_files(context):
 @then('the contents of the print files are valid')
 def validate_print_file_data(context):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
-    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv']
+    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv.gpg']
 
     assert len(manifests) == 4, 'Incorrect number of manifest files'
 
