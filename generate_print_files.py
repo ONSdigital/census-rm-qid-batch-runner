@@ -93,6 +93,8 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
 
         row_builder = build_ccs_print_row if is_ccs_pack_code(config['Pack code']) else build_print_row
 
+        row_count = 0
+
         for row_count, result_row in enumerate(uac_qid_links, start=1):
             print_row = row_builder(result_row, config)
             csv_writer.writerow(print_row)
