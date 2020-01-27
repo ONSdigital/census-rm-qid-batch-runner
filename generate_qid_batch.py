@@ -15,10 +15,13 @@ def generate_messages_from_config_file_path(config_file_path: Path, batch_id: uu
 def generate_messages_from_config_file(config_file, batch_id: uuid.UUID):
     config_file_reader = csv.DictReader(config_file)
     with RabbitContext() as rabbit:
+        print(config_file_reader)
         for row in config_file_reader:
             message_count = int(row['Quantity'])
             message_json = create_message_json(row['Questionnaire type'], batch_id)
             print(f'Queueing {message_count} questionnaire type {row["Questionnaire type"]}')
+            print(row["Questionnaire type"])
+            print()
             for _ in range(message_count):
                 rabbit.publish_message(message_json, 'application/json')
 

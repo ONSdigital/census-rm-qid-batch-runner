@@ -12,6 +12,7 @@ from typing import List, Collection
 
 from google.cloud import storage
 from sqlalchemy import create_engine
+from sqlalchemy.engine import ResultProxy
 from sqlalchemy.sql import text
 
 import sftp
@@ -87,7 +88,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
     return file_paths
 
 
-def generate_print_file(print_file_path: Path, uac_qid_links, config):
+def generate_print_file(print_file_path: Path, uac_qid_links: ResultProxy, config):
     with io.StringIO() as print_file_stream:
         csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
 
@@ -95,9 +96,17 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
 
         row_count = 0
 
+        print(uac_qid_links)
+        print('About to go through the loop')
         for row_count, result_row in enumerate(uac_qid_links, start=1):
+            print('#####################################')
+            print()
+            print(len(result_row))
+            print()
+            print('#######################################')
             print_row = row_builder(result_row, config)
             csv_writer.writerow(print_row)
+        print('Gone through the loop')
         if row_count != int(config["Quantity"]):
             raise QidQuantityMismatchException(f'expected = {config["Quantity"]}, found = {row_count}, '
                                                f'questionnaire type = {config["Questionnaire type"]}')
