@@ -86,20 +86,20 @@ spec:
                 name: sftp-ssh-credentials
                 key: passphrase
           - name: SFTP_KEY_FILENAME
-            value: "/root/.sftp-ssh/id_rsa"
+            value: "/home/qidbatchrunner/.sftp-ssh/id_rsa"
           - name: OUR_PUBLIC_KEY_PATH
-            value: "/root/.pgp-keys/our_public_key.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/our_public_key.asc"
           - name: OTHER_PUBLIC_KEY_PATH
-            value: "/root/.pgp-keys/other_public_key.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/other_public_key.asc"
         volumeMounts:
           - name: cloud-sql-certs
-            mountPath: "/root/.postgresql"
+            mountPath: "/home/qidbatchrunner/.postgresql"
             readOnly: true
           - name: sftp-keys
-            mountPath: "/root/.sftp-ssh"
+            mountPath: "/home/qidbatchrunner/.sftp-ssh"
             readOnly: true
           - name: pgp-keys
-            mountPath: "/root/.pgp-keys"
+            mountPath: "/home/qidbatchrunner/.pgp-keys"
             readOnly: true
         resources:
           requests:
