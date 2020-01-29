@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-cd /app
+cd /home/qidbatchrunner
 behave acceptance_tests
