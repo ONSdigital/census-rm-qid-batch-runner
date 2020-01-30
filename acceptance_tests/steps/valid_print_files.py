@@ -1,7 +1,6 @@
 import csv
 import io
 import os
-import time
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -19,15 +18,8 @@ def generate_test_qid_batch(context):
     context.batch_config_path = Path(__file__).parents[1].resolve().joinpath('resources', 'acceptance_test_batch.csv')
     context.batch_id = uuid.uuid4()
     with rabbit_connection_and_channel() as (connection, channel):
-        purge_uac_queue(channel)
         request_test_qid_batch(context.batch_id)
         wait_for_uacs_to_be_created(connection, channel)
-
-
-def purge_uac_queue(channel):
-    time.sleep(15)  # Wait for rogue messages to finish being published
-    channel.queue_purge(queue='acceptance_tests_uac')  # Get rid of stuff not related to this test
-    time.sleep(15)  # Wait for the purge to finish
 
 
 def request_test_qid_batch(batch_id):
@@ -36,7 +28,7 @@ def request_test_qid_batch(batch_id):
         batch_id)
 
 
-def wait_for_uacs_to_be_created(connection, channel, timeout=30, expected_quantity=30):
+def wait_for_uacs_to_be_created(connection, channel, timeout=30, expected_quantity=40):
     def message_callback(channel, method, *_):
         nonlocal uac_message_count
         uac_message_count += 1
