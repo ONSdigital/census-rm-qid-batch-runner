@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: qid-batch-runner
-        image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
+        image: adrhow92/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
         tty: true
         stdin: true
@@ -112,7 +112,7 @@ spec:
         - name: cloud-sql-certs
           secret:
             secretName: cloud-sql-certs
-            defaultMode: 0400
+            defaultMode: 0660
         - name: sftp-keys
           secret:
             secretName: sftp-ssh-credentials
