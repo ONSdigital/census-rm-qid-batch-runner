@@ -16,4 +16,6 @@ COPY Pipfile* /home/qidbatchrunner/
 RUN pipenv install --system --deploy
 USER qidbatchrunner
 
+RUN mkdir /home/qidbatchrunner/.postgresql
+
 COPY --chown=qidbatchrunner . /home/qidbatchrunner
