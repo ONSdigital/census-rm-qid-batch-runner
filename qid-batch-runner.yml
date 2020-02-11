@@ -29,7 +29,9 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql && chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
+                - |
+                cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql && 
+                chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
         image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
         tty: true
