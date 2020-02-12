@@ -125,7 +125,7 @@ spec:
         - name: cloud-sql-certs
           secret:
             secretName: cloud-sql-certs
-            defaultMode: 0660
+            defaultMode: 0600
         - name: sftp-keys
           secret:
             secretName: sftp-ssh-credentials
