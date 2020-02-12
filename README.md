@@ -133,10 +133,10 @@ You can watch the `unaddressedRequestQueue` from the rabbit management console t
 If you need to run a different config file, you can copy it into the pod once it is started with kubectl. 
 While the pod is running, in a different shell window run
 ```bash
-kubectl cp <local path to csv> qid-batch-runner:/app
+kubectl cp <local path to csv> qid-batch-runner:/home/qidbatchrunner
 ```
 
-Return to the connected shell in the pod, the file should then be available in the pod in `/app`.
+Return to the connected shell in the pod, the file should then be available in the pod in `/home/qidbatchrunner`.
 
 #### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with

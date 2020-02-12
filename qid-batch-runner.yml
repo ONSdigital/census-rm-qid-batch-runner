@@ -17,8 +17,20 @@ spec:
       labels:
         app: qid-batch-runner
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - name: qid-batch-runner
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql && 
+                  chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
+                  # the above is a workaround to get round the permissions as currently we cant mount it without doing this
         image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
         tty: true
@@ -86,20 +98,20 @@ spec:
                 name: sftp-ssh-credentials
                 key: passphrase
           - name: SFTP_KEY_FILENAME
-            value: "/root/.sftp-ssh/id_rsa"
+            value: "/home/qidbatchrunner/.sftp-ssh/id_rsa"
           - name: OUR_PUBLIC_KEY_PATH
-            value: "/root/.pgp-keys/our_public_key.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/our_public_key.asc"
           - name: OTHER_PUBLIC_KEY_PATH
-            value: "/root/.pgp-keys/other_public_key.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/other_public_key.asc"
         volumeMounts:
           - name: cloud-sql-certs
-            mountPath: "/root/.postgresql"
+            mountPath: "/home/qidbatchrunner/postgresql"
             readOnly: true
           - name: sftp-keys
-            mountPath: "/root/.sftp-ssh"
+            mountPath: "/home/qidbatchrunner/.sftp-ssh"
             readOnly: true
           - name: pgp-keys
-            mountPath: "/root/.pgp-keys"
+            mountPath: "/home/qidbatchrunner/.pgp-keys"
             readOnly: true
         resources:
           requests:
@@ -112,7 +124,7 @@ spec:
         - name: cloud-sql-certs
           secret:
             secretName: cloud-sql-certs
-            defaultMode: 0400
+            defaultMode: 0600
         - name: sftp-keys
           secret:
             secretName: sftp-ssh-credentials
