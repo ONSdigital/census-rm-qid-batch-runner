@@ -42,7 +42,11 @@ PRODUCTPACK_CODE_TO_DESCRIPTION = {
     'D_CCS_CCP1': 'CCS Postback Continuation Questionnaire for England & Wales',
     'D_CCS_CCP2W': 'CCS Postback Continuation Questionnaire for Wales (Welsh)',
     'D_CCS_CCE1': 'CCS Interviewer CE Manager for England & Wales (English)',
-    'D_CCS_CCE2W': 'CCS Interviewer CE Manager for Wales (Welsh)'
+    'D_CCS_CCE2W': 'CCS Interviewer CE Manager for Wales (Welsh)',
+    'D_FDCE_H1U': 'Household Questionnaire for England (UNADDRESSED)',
+    'D_FDCE_H2U': 'Household Questionnaire for Wales (UNADDRESSED)',
+    'D_FDCE_I1U': 'Individual Questionnaire for England (UNADDRESSED)',
+    'D_FDCE_I2U': 'Individual Questionnaire for Wales (UNADDRESSED)'
 }
 
 
