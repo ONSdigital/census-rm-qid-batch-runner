@@ -13,22 +13,21 @@ from generate_print_files import PRINT_FILE_TEMPLATE, generate_print_files_from_
 from generate_qid_batch import generate_messages_from_config_file_path
 
 
-@given('a QID batch has been generated')
-def generate_test_qid_batch(context):
-    context.batch_config_path = Path(__file__).parents[1].resolve().joinpath('resources', 'acceptance_test_batch.csv')
+@given('a QID batch has been generated from "{batch_file}" and expected uacs to be "{uac_count}"')
+def generate_test_qid_batch(context, batch_file, uac_count):
+    context.batch_config_path = Path(__file__).parents[1].resolve().joinpath('resources', batch_file)
     context.batch_id = uuid.uuid4()
     with rabbit_connection_and_channel() as (connection, channel):
-        request_test_qid_batch(context.batch_id)
-        wait_for_uacs_to_be_created(connection, channel)
+        request_test_qid_batch(context.batch_id, context.batch_config_path)
+        wait_for_uacs_to_be_created(connection, channel, expected_quantity=int(uac_count))
 
 
-def request_test_qid_batch(batch_id):
-    generate_messages_from_config_file_path(
-        Path(__file__).parents[1].resolve().joinpath('resources', 'acceptance_test_batch.csv'),
-        batch_id)
+def request_test_qid_batch(batch_id, batch_config_path):
+    generate_messages_from_config_file_path(batch_config_path,
+                                            batch_id)
 
 
-def wait_for_uacs_to_be_created(connection, channel, timeout=30, expected_quantity=40):
+def wait_for_uacs_to_be_created(connection, channel, timeout=30, expected_quantity=0):
     def message_callback(channel, method, *_):
         nonlocal uac_message_count
         uac_message_count += 1
@@ -68,12 +67,12 @@ def generate_print_files(context):
         context.batch_config_path, Path('.'), context.batch_id)
 
 
-@then('the contents of the print files are valid')
-def validate_print_file_data(context):
+@then('the "{manifest_count}" print files contents are valid')
+def validate_print_file_data(context, manifest_count):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
     print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv.gpg']
 
-    assert len(manifests) == 4, 'Incorrect number of manifest files'
+    assert len(manifests) == int(manifest_count), 'Incorrect number of manifest files'
 
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
