@@ -109,11 +109,12 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
 
     # Then
-    check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire pack for England')
-    check_manifest_file_contents(cleanup_test_files, 'D_FD_H2', 'Household Questionnaire pack for Wales (English)')
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire pack for England', row_count=2)
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H2', 'Household Questionnaire pack for Wales (English)',
+                                 row_count=1)
 
 
-def check_manifest_file_contents(cleanup_test_files, pack_code, description):
+def check_manifest_file_contents(cleanup_test_files, pack_code, description, row_count):
     manifest_file = next(cleanup_test_files.glob(f'{pack_code}*.manifest'))
     print_file = next(cleanup_test_files.glob(f'{pack_code}*.csv.gpg'))
     manifest = json.loads(manifest_file.read_text())
@@ -122,6 +123,7 @@ def check_manifest_file_contents(cleanup_test_files, pack_code, description):
     assert manifest['files'][0]['name'] == f'{manifest_file.stem}.csv.gpg'
     assert manifest['files'][0]['relativePath'].startswith('./')
     assert manifest['sourceName'] == 'ONS_RM'
+    assert manifest['files'][0]['rows'] == row_count
 
 
 def test_copy_files_to_gcs():
@@ -168,10 +170,11 @@ def test_create_manifest_formats_manifest_created_correctly_on_0_milliseconds(cl
     # When
     with patch('generate_print_files.datetime') as mock_datetime:
         mock_datetime.utcnow.return_value = datetime(2019, 12, 25, 0, 0, 0, 0)
-        manifest = create_manifest(print_file_path, 'D_FD_H1')
+        manifest = create_manifest(print_file_path, 'D_FD_H1', row_count=10)
 
     # Then
     assert manifest['manifestCreated'] == '2019-12-25T00:00:00.000Z'
+    assert manifest['files'][0]['rows'] == 10
 
 
 def mock_test_batch_results(mock_engine, batch_id: uuid.UUID):
