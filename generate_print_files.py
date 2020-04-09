@@ -17,37 +17,11 @@ from sqlalchemy.sql import text
 import sftp
 from encryption import pgp_encrypt_message
 from exceptions import QidQuantityMismatchException
+from mappings import SUPPLIER_TO_SFTP_DIRECTORY, PRODUCTPACK_CODE_TO_DESCRIPTION
 
 PRINT_FILE_TEMPLATE = (
     'UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'COORDINATOR_ID', 'FORENAME', 'SURNAME',
     'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
-
-PRODUCTPACK_CODE_TO_DESCRIPTION = {
-    'D_FD_H1': 'Household Questionnaire pack for England',
-    'D_FD_H2': 'Household Questionnaire pack for Wales (English)',
-    'D_FD_H2W': 'Household Questionnaire pack for Wales (Welsh)',
-    'D_FD_H4': 'Household Questionnaire pack for Northern Ireland (English)',
-    'D_FD_HC1': 'Continuation Questionnaire pack for England',
-    'D_FD_HC2': 'Continuation Questionnaire pack for Wales (English)',
-    'D_FD_HC2W': 'Continuation Questionnaire pack for Wales (Welsh)',
-    'D_FD_HC4': 'Continuation Questionnaire pack for Northern Ireland (English)',
-    'D_FD_I1': 'Individual Questionnaire pack for England',
-    'D_FD_I2': 'Individual Questionnaire pack for Wales (English)',
-    'D_FD_I2W': 'Individual Questionnaire pack for Wales (Welsh)',
-    'D_FD_I4': 'Individual Questionnaire pack for Northern Ireland (English)',
-    'D_CCS_CH1': 'CCS Interviewer Household Questionnaire for England and Wales',
-    'D_CCS_CH2W': 'CCS Interviewer Household Questionnaire for Wales (Welsh)',
-    'D_CCS_CHP1': 'CCS Postback Questionnaire for England and Wales (English)',
-    'D_CCS_CHP2W': 'CCS Postback Questionnaire for Wales (Welsh)',
-    'D_CCS_CCP1': 'CCS Postback Continuation Questionnaire for England & Wales',
-    'D_CCS_CCP2W': 'CCS Postback Continuation Questionnaire for Wales (Welsh)',
-    'D_CCS_CCE1': 'CCS Interviewer CE Manager for England & Wales (English)',
-    'D_CCS_CCE2W': 'CCS Interviewer CE Manager for Wales (Welsh)',
-    'D_FDCE_H1U': 'Household Questionnaire for England (UNADDRESSED)',
-    'D_FDCE_H2U': 'Household Questionnaire for Wales (UNADDRESSED)',
-    'D_FDCE_I1U': 'Individual Questionnaire for England (UNADDRESSED)',
-    'D_FDCE_I2U': 'Individual Questionnaire for Wales (UNADDRESSED)'
-}
 
 
 def _get_uac_qid_links(engine, questionnaire_type, batch_id: uuid.UUID):
@@ -69,12 +43,13 @@ def create_db_engine():
 
 def generate_print_files_from_config_file_path(config_file_path: Path,
                                                output_file_path: Path,
-                                               batch_id: uuid.UUID) -> List[Path]:
+                                               batch_id: uuid.UUID, supplier) -> List[Path]:
     with open(config_file_path) as config_file:
-        return generate_print_files_from_config_file(config_file, output_file_path, batch_id)
+        return generate_print_files_from_config_file(config_file, output_file_path, batch_id, supplier)
 
 
-def generate_print_files_from_config_file(config_file, output_file_path: Path, batch_id: uuid.UUID) -> List[Path]:
+def generate_print_files_from_config_file(config_file, output_file_path: Path, batch_id: uuid.UUID, supplier)\
+        -> List[Path]:
     config_file_reader = csv.DictReader(config_file)
     db_engine = create_db_engine()
     file_paths = []
@@ -82,7 +57,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
         uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'], batch_id)
         filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")}'
         print_file_path = output_file_path.joinpath(f'{filename}.csv.gpg')
-        generate_print_file(print_file_path, uac_qid_links, config_row)
+        generate_print_file(print_file_path, uac_qid_links, config_row, supplier)
         file_paths.append(print_file_path)
         manifest_file_path = output_file_path.joinpath(f'{filename}.manifest')
         generate_manifest_file(manifest_file_path, print_file_path, config_row['Pack code'])
@@ -91,7 +66,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
     return file_paths
 
 
-def generate_print_file(print_file_path: Path, uac_qid_links, config):
+def generate_print_file(print_file_path: Path, uac_qid_links, config, supplier):
     with io.StringIO() as print_file_stream:
         csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
 
@@ -107,7 +82,7 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config):
                                                f'questionnaire type = {config["Questionnaire type"]}')
         unencrypted_csv_contents = print_file_stream.getvalue()
 
-    encrypted_csv_message = pgp_encrypt_message(unencrypted_csv_contents)
+    encrypted_csv_message = pgp_encrypt_message(unencrypted_csv_contents, supplier)
 
     with open(print_file_path, 'w') as print_file:
         print_file.write(encrypted_csv_message)
@@ -158,8 +133,9 @@ def copy_files_to_gcs(file_paths: Collection[Path]):
     print(f'All {len(file_paths)} files successfully written to {bucket.name}')
 
 
-def copy_files_to_sftp(file_paths: Collection[Path]):
-    with sftp.SftpUtility() as sftp_client:
+def copy_files_to_sftp(file_paths: Collection[Path], supplier):
+    sftp_directory = SUPPLIER_TO_SFTP_DIRECTORY[supplier]
+    with sftp.SftpUtility(sftp_directory) as sftp_client:
         print(f'Copying files to SFTP remote {sftp_client.sftp_directory}')
         for file_path in file_paths:
             sftp_client.put_file(local_path=str(file_path), filename=file_path.name)
@@ -172,6 +148,7 @@ def parse_arguments():
                     'QID/UAC counts')
     parser.add_argument('config_file_path', help='Path to the CSV config file', type=Path)
     parser.add_argument('output_file_path', help='Directory to write output files', type=Path)
+    parser.add_argument('supplier', help="The supplier the files are going to")
     parser.add_argument('batch_id', help='UUID for this qid/uac pair batch, defaults to randomly generated',
                         type=uuid.UUID)
     parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')
@@ -182,11 +159,12 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     print(args.config_file_path)
-    file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path, args.batch_id)
+    file_paths = generate_print_files_from_config_file_path(args.config_file_path, args.output_file_path, args.batch_id,
+                                                            args.supplier)
     if not args.no_gcs:
         copy_files_to_gcs(file_paths)
     if not args.no_sftp:
-        copy_files_to_sftp(file_paths)
+        copy_files_to_sftp(file_paths, args.supplier)
 
 
 if __name__ == '__main__':

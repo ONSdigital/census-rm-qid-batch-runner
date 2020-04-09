@@ -61,10 +61,10 @@ def rabbit_connection_and_channel():
     connection.close()
 
 
-@when('the print files are generated')
-def generate_print_files(context):
+@when('the print files are generated for "{supplier}"')
+def generate_print_files(context, supplier):
     context.print_file_paths = generate_print_files_from_config_file_path(
-        context.batch_config_path, Path('.'), context.batch_id)
+        context.batch_config_path, Path('.'), context.batch_id, supplier)
 
 
 @then('the "{manifest_count}" print files contents are valid')
@@ -78,7 +78,7 @@ def validate_print_file_data(context, manifest_count):
         config_file = list(csv.DictReader(batch_config))
 
     our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
-    supplier_key, _ = pgpy.PGPKey.from_file('dummy_keys/supplier_dummy_private.asc')
+    supplier_key, _ = pgpy.PGPKey.from_file('dummy_keys/supplier_QM_dummy_private.asc')
 
     check_encrypted_files(print_files, config_file, our_key, passphrase='test')
     check_encrypted_files(print_files, config_file, supplier_key, passphrase='supplier')

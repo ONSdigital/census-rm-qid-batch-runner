@@ -24,7 +24,7 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
     # Then
     our_key, _ = pgpy.PGPKey.from_file(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_private.asc'))
@@ -49,7 +49,7 @@ def test_unaddressed_ccs_print_files_leaves_out_UAC(cleanup_test_files,
     mock_ccs_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
     # Then
     our_key, _ = pgpy.PGPKey.from_file(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_private.asc'))
@@ -73,7 +73,7 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     with patch('generate_print_files.datetime') as patched_datetime:
         # Patch the datetime to return a fixed time we can test against
         patched_datetime.utcnow.return_value = datetime(2013, 9, 30, 7, 6, 5)
-        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
     # Then
     assert cleanup_test_files.joinpath('D_FD_H1_2013-09-30T07-06-05.csv.gpg').exists()
@@ -93,7 +93,7 @@ def test_generate_print_files_from_config_file_path_errors_on_qid_quantity_misma
 
     # Then
     with pytest.raises(QidQuantityMismatchException, match='expected = 10, found = 2, questionnaire type = 01'):
-        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+        generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
 
 def test_generate_print_files_from_config_file_path_generates_correct_manifests(cleanup_test_files,
@@ -106,7 +106,7 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     mock_test_batch_results(mock_db_engine, batch_id)
 
     # When
-    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id)
+    generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
     # Then
     check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire pack for England')
@@ -150,7 +150,7 @@ def test_copy_files_to_sftp():
     with patch('generate_print_files.sftp.paramiko.SSHClient') as client:
         client.return_value.open_sftp.return_value = mock_storage_client  # mock the sftp client connection
         mock_storage_client.stat.return_value.st_mode = paramiko.sftp_client.stat.S_IFDIR  # mock directory exists
-        copy_files_to_sftp(test_files)
+        copy_files_to_sftp(test_files, 'QM')
 
     mock_put_file = mock_storage_client.put
 
@@ -193,7 +193,7 @@ def setup_environment():
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
     os.environ['OTHER_PUBLIC_KEY_PATH'] = str(
-        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_dummy_public.asc'))
+        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_QM_dummy_public.asc'))
     os.environ['OUR_PUBLIC_KEY_PATH'] = str(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_public.asc'))
     return resource_file_path
 
