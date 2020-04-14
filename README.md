@@ -147,6 +147,9 @@ python generate_print_files.py unaddressed_batch.csv <print file directory path>
 This should write the files out locally, then copy them to the GCS bucket.
 If don't want to upload the files to GCS then run with the `--no-gcs` flag.
 
+Make sure when generating the print files, you are creating them in the correct directory. The batches have been labeled which supplier they
+should be going to.
+
 When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make delete-pod`.
 
 

@@ -17,11 +17,8 @@ from sqlalchemy.sql import text
 import sftp
 from encryption import pgp_encrypt_message
 from exceptions import QidQuantityMismatchException
-from mappings import SUPPLIER_TO_SFTP_DIRECTORY, PRODUCTPACK_CODE_TO_DESCRIPTION
-
-PRINT_FILE_TEMPLATE = (
-    'UAC', 'QUESTIONNAIRE_ID', 'WALES_UAC', 'WALES_QUESTIONNAIRE_ID', 'TITLE', 'COORDINATOR_ID', 'FORENAME', 'SURNAME',
-    'ADDRESS_LINE1', 'ADDRESS_LINE2', 'ADDRESS_LINE3', 'TOWN_NAME', 'POSTCODE', 'PRODUCTPACK_CODE')
+from mappings import SUPPLIER_TO_SFTP_DIRECTORY, PRODUCTPACK_CODE_TO_DESCRIPTION, SUPPLIER_TO_PRINT_TEMPLATE, \
+    PRODUCTPACK_CODE_TO_DATASET
 
 
 def _get_uac_qid_links(engine, questionnaire_type, batch_id: uuid.UUID):
@@ -48,7 +45,7 @@ def generate_print_files_from_config_file_path(config_file_path: Path,
         return generate_print_files_from_config_file(config_file, output_file_path, batch_id, supplier)
 
 
-def generate_print_files_from_config_file(config_file, output_file_path: Path, batch_id: uuid.UUID, supplier)\
+def generate_print_files_from_config_file(config_file, output_file_path: Path, batch_id: uuid.UUID, supplier) \
         -> List[Path]:
     config_file_reader = csv.DictReader(config_file)
     db_engine = create_db_engine()
@@ -68,7 +65,7 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
 
 def generate_print_file(print_file_path: Path, uac_qid_links, config, supplier):
     with io.StringIO() as print_file_stream:
-        csv_writer = csv.DictWriter(print_file_stream, fieldnames=PRINT_FILE_TEMPLATE, delimiter='|')
+        csv_writer = csv.DictWriter(print_file_stream, fieldnames=SUPPLIER_TO_PRINT_TEMPLATE[supplier], delimiter='|')
 
         row_builder = build_ccs_print_row if is_ccs_pack_code(config['Pack code']) else build_print_row
 
@@ -109,7 +106,7 @@ def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
     return {
         'schemaVersion': '1',
         'description': PRODUCTPACK_CODE_TO_DESCRIPTION[productpack_code],
-        'dataset': 'QM3.1',
+        'dataset': PRODUCTPACK_CODE_TO_DATASET[productpack_code].value,
         'version': '1',
         'manifestCreated': datetime.utcnow().isoformat(timespec='milliseconds') + 'Z',
         'sourceName': 'ONS_RM',
@@ -148,7 +145,7 @@ def parse_arguments():
                     'QID/UAC counts')
     parser.add_argument('config_file_path', help='Path to the CSV config file', type=Path)
     parser.add_argument('output_file_path', help='Directory to write output files', type=Path)
-    parser.add_argument('supplier', help="The supplier the files are going to")
+    parser.add_argument('supplier', help="The supplier the files are going to", type=str)
     parser.add_argument('batch_id', help='UUID for this qid/uac pair batch, defaults to randomly generated',
                         type=uuid.UUID)
     parser.add_argument('--no-gcs', help="Don't copy the files to a GCS bucket", required=False, action='store_true')

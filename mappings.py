@@ -1,5 +1,6 @@
 import os
 
+from constants import Dataset, PrintTemplate
 
 SUPPLIER_TO_SFTP_DIRECTORY = {
     'QM': os.getenv('SFTP_QM_DIRECTORY'),
@@ -12,35 +13,43 @@ SUPPLIER_TO_KEY_PATH = {
     'PPO': os.getenv('PPO_PUBLIC_KEY_PATH')
 }
 
+SUPPLIER_TO_PRINT_TEMPLATE = {
+    'QM': PrintTemplate.QM_PRINT_FILE_TEMPLATE,
+    'PPO': PrintTemplate.PPD_PRINT_FILE_TEMPLATE
+}
+
 PRODUCTPACK_CODE_TO_DATASET = {
-    'D_FD_H1': 'QM3.1',
-    'D_FD_H2': 'QM3.1',
-    'D_FD_H2W': 'QM3.1',
-    'D_FD_H4': 'QM3.1',
-    'D_FD_HC1': 'QM3.1',
-    'D_FD_HC2': 'QM3.1',
-    'D_FD_HC2W': 'QM3.1',
-    'D_FD_HC4': 'QM3.1',
-    'D_FD_I1': 'QM3.1',
-    'D_FD_I2': 'QM3.1',
-    'D_FD_I2W': 'QM3.1',
-    'D_FD_I4': 'QM3.1',
-    'D_CCS_CH1': 'QM3.1',
-    'D_CCS_CH2W': 'QM3.1',
-    'D_CCS_CHP1': 'QM3.1',
-    'D_CCS_CHP2W': 'QM3.1',
-    'D_CCS_CCP1': 'QM3.1',
-    'D_CCS_CCP2W': 'QM3.1',
-    'D_CCS_CCE1': 'QM3.1',
-    'D_CCS_CCE2W': 'QM3.1',
-    'D_FDCE_H1U': 'QM3.1',
-    'D_FDCE_H2U': 'QM3.1',
-    'D_FDCE_I1U': 'QM3.1',
-    'D_FDCE_I2U': 'QM3.1',
-    'D_CE1U_ICLCR1': 'PPD',
-    'D_CE1U_ICLCR2B': 'PPD',
-    'D_ICU_ICLR1': 'PPD',
-    'D_ICU_ICLR2B': 'PPD'
+    'D_FD_H1': Dataset.QM3_1,
+    'D_FD_H2': Dataset.QM3_1,
+    'D_FD_H2W': Dataset.QM3_1,
+    'D_FD_H4': Dataset.QM3_1,
+    'D_FD_HC1': Dataset.QM3_1,
+    'D_FD_HC2': Dataset.QM3_1,
+    'D_FD_HC2W': Dataset.QM3_1,
+    'D_FD_HC4': Dataset.QM3_1,
+    'D_FD_I1': Dataset.QM3_1,
+    'D_FD_I2': Dataset.QM3_1,
+    'D_FD_I2W': Dataset.QM3_1,
+    'D_FD_I4': Dataset.QM3_1,
+    'D_CCS_CH1': Dataset.QM3_1,
+    'D_CCS_CH2W': Dataset.QM3_1,
+    'D_CCS_CHP1': Dataset.QM3_1,
+    'D_CCS_CHP2W': Dataset.QM3_1,
+    'D_CCS_CCP1': Dataset.QM3_1,
+    'D_CCS_CCP2W': Dataset.QM3_1,
+    'D_CCS_CCE1': Dataset.QM3_1,
+    'D_CCS_CCE2W': Dataset.QM3_1,
+    'D_FDCE_H1U': Dataset.QM3_1,
+    'D_FDCE_H2U': Dataset.QM3_1,
+    'D_FDCE_I1U': Dataset.QM3_1,
+    'D_FDCE_I2U': Dataset.QM3_1,
+    'D_CE1U_ICLCR1': Dataset.PPD1_1,
+    'D_CE1U_ICLCR2B': Dataset.PPD1_1,
+    'D_ICU_ICLR1': Dataset.PPD1_1,
+    'D_ICU_ICLR2B': Dataset.PPD1_1,
+    'D_ICCE_ICL1': Dataset.PPD1_1,
+    'D_ICCE_ICL2B': Dataset.PPD1_1
+
 }
 
 PRODUCTPACK_CODE_TO_DESCRIPTION = {
