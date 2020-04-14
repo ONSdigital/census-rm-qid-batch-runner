@@ -8,6 +8,6 @@ Feature: Upload print files to a remote SFTP
     Then the print files are present on the remote "<supplier>" SFTP
 
     Examples:
-      | sample_file       | expected_uacs | manifest_count | supplier |
-      | D_CCS_CH1_test    | 40            | 4              | QM       |
-      | D_ICCE_ICL2B_test | 40            | 4              | PPO       |
+      | sample_file       | supplier |
+      | D_CCS_CH1_test    | QM       |
+      | D_ICCE_ICL2B_test | PPO      |
