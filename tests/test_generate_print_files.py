@@ -14,7 +14,7 @@ from generate_print_files import generate_print_files_from_config_file_path, cop
     create_manifest
 
 
-def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents_for_QM(cleanup_test_files,
+def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents_for_qm(cleanup_test_files,
                                                                                                  mock_db_engine,
                                                                                                  setup_environment):
     # Given
@@ -39,7 +39,7 @@ def test_generate_print_files_from_config_file_path_generates_correct_print_file
     assert message_2 == 'test_uac_3|test_qid_3||||||||||||D_FD_H2\r\n'
 
 
-def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents_for_PPO(cleanup_test_files,
+def test_generate_print_files_from_config_file_path_generates_correct_print_file_contents_for_ppo(cleanup_test_files,
                                                                                                   mock_db_engine,
                                                                                                   setup_environment):
     # Given
