@@ -54,10 +54,10 @@ def generate_print_files_from_config_file(config_file, output_file_path: Path, b
         uac_qid_links = _get_uac_qid_links(db_engine, config_row['Questionnaire type'], batch_id)
         filename = f'{config_row["Pack code"]}_{datetime.utcnow().strftime("%Y-%m-%dT%H-%M-%S")}'
         print_file_path = output_file_path.joinpath(f'{filename}.csv.gpg')
-        generate_print_file(print_file_path, uac_qid_links, config_row, supplier)
+        row_count = generate_print_file(print_file_path, uac_qid_links, config_row, supplier)
         file_paths.append(print_file_path)
         manifest_file_path = output_file_path.joinpath(f'{filename}.manifest')
-        generate_manifest_file(manifest_file_path, print_file_path, config_row['Pack code'])
+        generate_manifest_file(manifest_file_path, print_file_path, config_row['Pack code'], row_count)
         file_paths.append(manifest_file_path)
     print(f'Successfully generated {len(file_paths)} files in {output_file_path}')
     return file_paths
@@ -84,6 +84,8 @@ def generate_print_file(print_file_path: Path, uac_qid_links, config, supplier):
     with open(print_file_path, 'w') as print_file:
         print_file.write(encrypted_csv_message)
 
+    return row_count
+
 
 def is_ccs_pack_code(pack_code):
     return pack_code.startswith('D_CCS')
@@ -97,12 +99,12 @@ def build_ccs_print_row(result_row, config):
     return {'QUESTIONNAIRE_ID': result_row['qid'], 'PRODUCTPACK_CODE': config["Pack code"]}
 
 
-def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str):
-    manifest = create_manifest(print_file_path, productpack_code)
+def generate_manifest_file(manifest_file_path: Path, print_file_path: Path, productpack_code: str, row_count):
+    manifest = create_manifest(print_file_path, productpack_code, row_count)
     manifest_file_path.write_text(json.dumps(manifest))
 
 
-def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
+def create_manifest(print_file_path: Path, productpack_code: str, row_count) -> dict:
     return {
         'schemaVersion': '1',
         'description': PRODUCTPACK_CODE_TO_DESCRIPTION[productpack_code],
@@ -115,7 +117,8 @@ def create_manifest(print_file_path: Path, productpack_code: str) -> dict:
                 'name': print_file_path.name,
                 'relativePath': './',
                 'sizeBytes': str(print_file_path.stat().st_size),
-                'md5sum': hashlib.md5(print_file_path.read_text().encode()).hexdigest()
+                'md5sum': hashlib.md5(print_file_path.read_text().encode()).hexdigest(),
+                'rows': row_count
             }
         ]
     }
