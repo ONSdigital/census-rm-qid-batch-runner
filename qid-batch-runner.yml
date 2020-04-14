@@ -31,7 +31,7 @@ spec:
                   cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql && 
                   chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
                   # the above is a workaround to get round the permissions as currently we cant mount it without doing this
-        image: eu.gcr.io/census-rm-ryangrundy/rm/census-rm-qid-batch-runner:latest
+        image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
         imagePullPolicy: Always
         tty: true
         stdin: true

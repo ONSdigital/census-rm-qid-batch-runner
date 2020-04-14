@@ -11,7 +11,7 @@ from behave import given, when, then
 
 from generate_print_files import generate_print_files_from_config_file_path
 from generate_qid_batch import generate_messages_from_config_file_path
-from mappings import SUPPLIER_TO_PRINT_TEMPLATE, SUPPLIER_TO_KEY_PATH
+from mappings import SUPPLIER_TO_PRINT_TEMPLATE, SUPPLIER_TO_PRIVATE_KEY_PATH
 
 
 @given('a QID batch has been generated from "{batch_file}" and expected uacs to be "{uac_count}"')
@@ -71,7 +71,7 @@ def generate_print_files(context, supplier):
 @then('the "{manifest_count}" print files contents are valid for the "{supplier}"')
 def validate_print_file_data(context, manifest_count, supplier):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
-    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv.gpg']
+    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.gpg']
 
     assert len(manifests) == int(manifest_count), 'Incorrect number of manifest files'
 
@@ -79,10 +79,13 @@ def validate_print_file_data(context, manifest_count, supplier):
         config_file = list(csv.DictReader(batch_config))
 
     our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
-    supplier_key, _ = pgpy.PGPKey.from_file(SUPPLIER_TO_KEY_PATH[supplier])
+    supplier_key, _ = pgpy.PGPKey.from_file(SUPPLIER_TO_PRIVATE_KEY_PATH[supplier])
 
     check_encrypted_files(print_files, config_file, our_key, supplier, passphrase='test')
-    check_encrypted_files(print_files, config_file, supplier_key, supplier, passphrase='supplier')
+    if supplier == 'QM':
+        check_encrypted_files(print_files, config_file, supplier_key, supplier, passphrase='supplier')
+    else:
+        check_encrypted_files(print_files, config_file, supplier_key, supplier, passphrase='test')
 
 
 def check_encrypted_files(print_files, config_file, key, supplier, passphrase):

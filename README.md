@@ -141,7 +141,7 @@ Return to the connected shell in the pod, the file should then be available in t
 #### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
-python generate_print_files.py unaddressed_batch.csv <print file directory path> <batch ID> <supplier>
+python generate_print_files.py unaddressed_batch.csv <print file directory path> <supplier> <batch ID>
 ```
 
 This should write the files out locally, then copy them to the GCS bucket.

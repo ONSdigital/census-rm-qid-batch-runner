@@ -13,6 +13,11 @@ SUPPLIER_TO_KEY_PATH = {
     'PPO': os.getenv('PPO_PUBLIC_KEY_PATH')
 }
 
+SUPPLIER_TO_PRIVATE_KEY_PATH = {
+    'QM': 'dummy_keys/supplier_QM_dummy_private.asc',
+    'PPO': 'dummy_keys/dummy_ppo_supplier_private_key.asc'
+}
+
 SUPPLIER_TO_PRINT_TEMPLATE = {
     'QM': PrintTemplate.QM_PRINT_FILE_TEMPLATE,
     'PPO': PrintTemplate.PPD_PRINT_FILE_TEMPLATE
