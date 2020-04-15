@@ -9,8 +9,9 @@ import pgpy
 import pika
 from behave import given, when, then
 
-from generate_print_files import PRINT_FILE_TEMPLATE, generate_print_files_from_config_file_path
+from generate_print_files import generate_print_files_from_config_file_path
 from generate_qid_batch import generate_messages_from_config_file_path
+from mappings import SUPPLIER_TO_PRINT_TEMPLATE, SUPPLIER_TO_PRIVATE_KEY_PATH
 
 
 @given('a QID batch has been generated from "{batch_file}" and expected uacs to be "{uac_count}"')
@@ -61,30 +62,34 @@ def rabbit_connection_and_channel():
     connection.close()
 
 
-@when('the print files are generated')
-def generate_print_files(context):
+@when('the print files are generated for "{supplier}"')
+def generate_print_files(context, supplier):
     context.print_file_paths = generate_print_files_from_config_file_path(
-        context.batch_config_path, Path('.'), context.batch_id)
+        context.batch_config_path, Path('.'), context.batch_id, supplier)
 
 
-@then('the "{manifest_count}" print files contents are valid')
-def validate_print_file_data(context, manifest_count):
+@then('the "{file_count}" print files contents are valid for the "{supplier}"')
+def validate_print_file_data(context, file_count, supplier):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
-    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.csv.gpg']
+    print_files = [file_path for file_path in context.print_file_paths if file_path.name.endswith('.csv.gpg')]
 
-    assert len(manifests) == int(manifest_count), 'Incorrect number of manifest files'
+    assert len(manifests) == int(file_count), f'Incorrect number of manifest files {len(manifests)}'
+    assert len(print_files) == int(file_count), f'Incorrect number of print files {len(print_files)}'
 
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
 
     our_key, _ = pgpy.PGPKey.from_file('dummy_keys/our_dummy_private.asc')
-    supplier_key, _ = pgpy.PGPKey.from_file('dummy_keys/supplier_dummy_private.asc')
+    supplier_key, _ = pgpy.PGPKey.from_file(SUPPLIER_TO_PRIVATE_KEY_PATH[supplier])
 
-    check_encrypted_files(print_files, config_file, our_key, passphrase='test')
-    check_encrypted_files(print_files, config_file, supplier_key, passphrase='supplier')
+    check_encrypted_files(print_files, config_file, our_key, supplier, passphrase='test')
+    if supplier == 'QM':
+        check_encrypted_files(print_files, config_file, supplier_key, supplier, passphrase='supplier')
+    else:
+        check_encrypted_files(print_files, config_file, supplier_key, supplier, passphrase='test')
 
 
-def check_encrypted_files(print_files, config_file, key, passphrase):
+def check_encrypted_files(print_files, config_file, key, supplier, passphrase):
     for index, print_file in enumerate(print_files):
 
         encrypted_print_file_csv = pgpy.PGPMessage.from_file(print_file)
@@ -95,7 +100,7 @@ def check_encrypted_files(print_files, config_file, key, passphrase):
         print_file_reader = csv.DictReader(io.StringIO(print_file_csv),  # NB: requires a file-like object not string
                                            delimiter='|',
                                            lineterminator='\r\n',
-                                           fieldnames=PRINT_FILE_TEMPLATE)
+                                           fieldnames=SUPPLIER_TO_PRINT_TEMPLATE[supplier])
 
         if print_file.name.startswith('D_CCS'):
             for row_count, row in enumerate(print_file_reader, start=1):

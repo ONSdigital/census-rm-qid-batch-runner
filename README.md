@@ -68,10 +68,13 @@ export SFTP_HOST=localhost
 export SFTP_PORT=122
 export SFTP_USERNAME=centos
 export SFTP_PASSPHRASE=secret
-export SFTP_DIRECTORY="qmprint_dev/print_services"
+export SFTP_PPO_DIRECTORY="ppo_dev/print_services/"
+export SFTP_QM_DIRECTORY="qmprint_dev/print_services/"
 export SFTP_KEY_FILENAME="dummy_keys/dummy_rsa"
 export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
-export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
+export QM_PUBLIC_KEY_PATH="dummy_keys/supplier_QM_dummy_public_key.asc"
+export PPO_PUBLIC_KEY_PATH="dummy_keys/supplier_PPO_dummy_public_key.asc"
+
 EOF
 ```
 Create local output directory
@@ -81,10 +84,14 @@ mkdir print_files
 
 Then run
 ```bash
-pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
+pipenv run python generate_print_files.py <path to config csv> <path to output directory> <supplier> <batch ID> --no-gcs
 ```
 
-This will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
+This will read the generated qid/uac pairs and generate the print and manifest files in the specified supplier directory. 
+Make sure to pass in the correct supplier so the files go to the correct location. The suppliers have been put onto the
+batch files to show where they should go.
+
+The suppliers to pass in are `QM` or `PPO` 
 
 If the print file is for CCS unaddressed questionnaires, then the UAC's generated for the QID's will not be included 
 
@@ -141,11 +148,14 @@ Return to the connected shell in the pod, the file should then be available in t
 #### Generate the print files
 Once all the QID/UAC pair request messages have been ingested, you can generate the print files with
 ```bash
-python generate_print_files.py unaddressed_batch.csv <print file directory path> <batch ID>
+python generate_print_files.py unaddressed_batch.csv <print file directory path> <supplier> <batch ID>
 ```
 
 This should write the files out locally, then copy them to the GCS bucket.
 If don't want to upload the files to GCS then run with the `--no-gcs` flag.
+
+Make sure when generating the print files, you are creating them in the correct directory. The batches have been labeled which supplier they
+should be going to.
 
 When you are finished exit the pod with `ctrl + D` or by running `exit`. This will disconnect, then you can delete the pod with `make delete-pod`.
 
