@@ -221,9 +221,9 @@ def setup_environment():
     for env_var in required_env_vars:
         os.environ[env_var] = 'test_value'
     os.environ['QM_PUBLIC_KEY_PATH'] = str(
-        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_QM_dummy_public.asc'))
+        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_QM_dummy_public_key.asc'))
     os.environ['PPO_PUBLIC_KEY_PATH'] = str(
-        Path(__file__).parents[1].joinpath('dummy_keys', 'dummy_ppo_supplier_public_key.asc'))
+        Path(__file__).parents[1].joinpath('dummy_keys', 'supplier_PPO_dummy_public_key.asc'))
     os.environ['OUR_PUBLIC_KEY_PATH'] = str(Path(__file__).parents[1].joinpath('dummy_keys', 'our_dummy_public.asc'))
     return resource_file_path
 

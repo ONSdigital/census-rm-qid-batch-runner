@@ -11,14 +11,14 @@ SUPPLIER_TO_SFTP_DIRECTORY = {
 
 SUPPLIER_TO_KEY_PATH = {
     'QM': os.getenv('QM_PUBLIC_KEY_PATH') or str(
-        Path(__file__).parents[0].joinpath('dummy_keys', 'supplier_QM_dummy_public.asc')),
+        Path(__file__).parents[0].joinpath('dummy_keys', 'supplier_QM_dummy_public_key.asc')),
     'PPO': os.getenv('PPO_PUBLIC_KEY_PATH') or str(
-        Path(__file__).parents[0].joinpath('dummy_keys', 'dummy_ppo_supplier_public_key.asc'))
+        Path(__file__).parents[0].joinpath('dummy_keys', 'supplier_PPO_dummy_public_key.asc'))
 }
 
 SUPPLIER_TO_PRIVATE_KEY_PATH = {
-    'QM': 'dummy_keys/supplier_QM_dummy_private.asc',
-    'PPO': 'dummy_keys/dummy_ppo_supplier_private_key.asc'
+    'QM': 'dummy_keys/supplier_QM_dummy_private_key.asc',
+    'PPO': 'dummy_keys/supplier_PPO_dummy_private_key.asc'
 }
 
 SUPPLIER_TO_PRINT_TEMPLATE = {

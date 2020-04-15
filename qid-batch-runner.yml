@@ -107,9 +107,9 @@ spec:
           - name: OUR_PUBLIC_KEY_PATH
             value: "/home/qidbatchrunner/.pgp-keys/our_public_key.asc"
           - name: QM_PUBLIC_KEY_PATH
-            value: "/home/qidbatchrunner/.pgp-keys/supplier_QM_dummy_public.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/supplier_QM_dummy_public_key.asc"
           - name: PPO_PUBLIC_KEY_PATH
-            value: "/home/qidbatchrunner/.pgp-keys/supplier_ppo_dummy_public.asc"
+            value: "/home/qidbatchrunner/.pgp-keys/supplier_PPO_dummy_public_key.asc"
         volumeMounts:
           - name: cloud-sql-certs
             mountPath: "/home/qidbatchrunner/postgresql"
@@ -147,6 +147,6 @@ spec:
               - key: our-public-key
                 path: "our_public_key.asc"
               - key: qm-supplier-public-key
-                path: "supplier_QM_dummy_public.asc"
+                path: "supplier_QM_dummy_public_key.asc"
               - key: ppo-supplier-public-key
-                path: "supplier_ppo_dummy_public.asc"
+                path: "supplier_PPO_dummy_public_key.asc"
