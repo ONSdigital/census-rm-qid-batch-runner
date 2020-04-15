@@ -68,10 +68,13 @@ export SFTP_HOST=localhost
 export SFTP_PORT=122
 export SFTP_USERNAME=centos
 export SFTP_PASSPHRASE=secret
-export SFTP_DIRECTORY="qmprint_dev/print_services"
+export SFTP_PPO_DIRECTORY="ppo_dev/print_services/"
+export SFTP_QM_DIRECTORY="qmprint_dev/print_services/"
 export SFTP_KEY_FILENAME="dummy_keys/dummy_rsa"
 export OUR_PUBLIC_KEY_PATH="dummy_keys/our_dummy_public.asc"
-export OTHER_PUBLIC_KEY_PATH="dummy_keys/supplier_dummy_public.asc"
+export QM_PUBLIC_KEY_PATH="dummy_keys/supplier_QM_dummy_public_key.asc"
+export PPO_PUBLIC_KEY_PATH="dummy_keys/supplier_PPO_dummy_public_key.asc"
+
 EOF
 ```
 Create local output directory
@@ -81,10 +84,10 @@ mkdir print_files
 
 Then run
 ```bash
-pipenv run python generate_print_files.py <path to config csv> <path to output directory> <batch ID> --no-gcs
+pipenv run python generate_print_files.py <path to config csv> <path to output directory> <supplier> <batch ID> --no-gcs
 ```
 
-This will read the generated qid/uac pairs and generate the print and manifest files in the specified directory
+This will read the generated qid/uac pairs and generate the print and manifest files in the specified supplier directory
 
 If the print file is for CCS unaddressed questionnaires, then the UAC's generated for the QID's will not be included 
 
