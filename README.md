@@ -87,7 +87,9 @@ Then run
 pipenv run python generate_print_files.py <path to config csv> <path to output directory> <supplier> <batch ID> --no-gcs
 ```
 
-This will read the generated qid/uac pairs and generate the print and manifest files in the specified supplier directory
+This will read the generated qid/uac pairs and generate the print and manifest files in the specified supplier directory. 
+Make sure to pass in the correct supplier so the files go to the correct location. The suppliers have been put onto the
+batch files to show where they should go. 
 
 If the print file is for CCS unaddressed questionnaires, then the UAC's generated for the QID's will not be included 
 
