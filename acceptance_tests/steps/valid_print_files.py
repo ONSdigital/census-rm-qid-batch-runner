@@ -68,12 +68,13 @@ def generate_print_files(context, supplier):
         context.batch_config_path, Path('.'), context.batch_id, supplier)
 
 
-@then('the "{manifest_count}" print files contents are valid for the "{supplier}"')
-def validate_print_file_data(context, manifest_count, supplier):
+@then('the "{file_count}" print files contents are valid for the "{supplier}"')
+def validate_print_file_data(context, file_count, supplier):
     manifests = [file_path for file_path in context.print_file_paths if file_path.suffix == '.manifest']
-    print_files = [file_path for file_path in context.print_file_paths if file_path.suffix == '.gpg']
+    print_files = [file_path for file_path in context.print_file_paths if file_path.name.endswith('.csv.gpg')]
 
-    assert len(manifests) == int(manifest_count), 'Incorrect number of manifest files'
+    assert len(manifests) == int(file_count), f'Incorrect number of manifest files {len(manifests)}'
+    assert len(print_files) == int(file_count), f'Incorrect number of print files {len(print_files)}'
 
     with open(context.batch_config_path) as batch_config:
         config_file = list(csv.DictReader(batch_config))
