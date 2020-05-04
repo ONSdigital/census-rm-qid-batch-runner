@@ -2,8 +2,7 @@ install:
 	pipenv install --dev
 
 check:
-	# TODO reinstate this once https://github.com/pypa/pipenv/issues/4188 is resolved
-   #pipenv check
+   PIPENV_PYUP_API_KEY="" pipenv check
 
 lint:
 	pipenv run flake8
