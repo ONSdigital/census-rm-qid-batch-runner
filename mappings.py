@@ -51,12 +51,12 @@ PRODUCTPACK_CODE_TO_DATASET = {
     'D_FDCE_H2U': Dataset.QM3_1,
     'D_FDCE_I1U': Dataset.QM3_1,
     'D_FDCE_I2U': Dataset.QM3_1,
-    'D_CE1U_ICLCR1': Dataset.PPD1_1,
-    'D_CE1U_ICLCR2B': Dataset.PPD1_1,
-    'D_ICU_ICLR1': Dataset.PPD1_1,
-    'D_ICU_ICLR2B': Dataset.PPD1_1,
-    'D_ICCE_ICL1': Dataset.PPD1_1,
-    'D_ICCE_ICL2B': Dataset.PPD1_1
+    'D_CE1U_ICLCR1': Dataset.PPD1_6,
+    'D_CE1U_ICLCR2B': Dataset.PPD1_6,
+    'D_ICU_ICLR1': Dataset.PPD1_6,
+    'D_ICU_ICLR2B': Dataset.PPD1_6,
+    'D_ICCE_ICL1': Dataset.PPD1_6,
+    'D_ICCE_ICL2B': Dataset.PPD1_6
 
 }
 
