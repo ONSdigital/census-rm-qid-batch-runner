@@ -9,5 +9,5 @@ Feature: Generate valid print files
     Examples:
       | sample_file                         | expected_uacs | file_count | supplier |
       | acceptance_test_batch.csv           | 40            | 4              | QM       |
-      | acceptance_test_ce_batch.csv        | 40            | 4              | QM       |
+      | acceptance_test_ce_batch.csv        | 60            | 6              | QM       |
       | acceptance_test_batch_hh_global.csv | 20            | 2              | PPO      |
