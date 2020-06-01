@@ -87,7 +87,7 @@ PRODUCTPACK_CODE_TO_DESCRIPTION = {
     'D_FDCE_H2U': 'Household Questionnaire for Wales (UNADDRESSED) (English) (CE)',
     'D_FDCE_H2UW': 'Household Questionnaire for Wales (UNADDRESSED) (Welsh) (CE)',
     'D_FDCE_I1U': 'Individual Questionnaire for England (UNADDRESSED)',
-    'D_FDCE_I2U': 'Individual Questionnaire for Wales (UNADDRESSED)',
+    'D_FDCE_I2U': 'Individual Questionnaire for Wales (UNADDRESSED) (English)',
     'D_FDCE_I2UW': 'Individual Questionnaire for Wales (UNADDRESSED) (Welsh)',
     'D_CE1U_ICLCR1': 'CE1 Packs (Hand Delivery) Unaddressed England',
     'D_CE1U_ICLCR2B': 'CE1 Packs (Hand Delivery) Unaddressed Wales',
