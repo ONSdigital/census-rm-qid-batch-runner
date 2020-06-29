@@ -17,6 +17,7 @@ spec:
       labels:
         app: qid-batch-runner
     spec:
+      serviceAccount: qid-batch-runner
       securityContext:
         fsGroup: 1000
       containers:
