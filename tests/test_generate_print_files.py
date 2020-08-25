@@ -134,8 +134,8 @@ def test_generate_print_files_from_config_file_path_generates_correct_manifests(
     generate_print_files_from_config_file_path(config_file_path, cleanup_test_files, batch_id, 'QM')
 
     # Then
-    check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire pack for England', row_count=2)
-    check_manifest_file_contents(cleanup_test_files, 'D_FD_H2', 'Household Questionnaire pack for Wales (English)',
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H1', 'Household Questionnaire for England', row_count=2)
+    check_manifest_file_contents(cleanup_test_files, 'D_FD_H2', 'Household Questionnaire for Wales (English)',
                                  row_count=1)
 
 
