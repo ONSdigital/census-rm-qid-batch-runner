@@ -42,7 +42,6 @@ PRODUCTPACK_CODE_TO_DATASET = {
     'D_CCS_CH2W': Dataset.QM3_1,
     'D_CCS_CHP1': Dataset.QM3_1,
     'D_CCS_CHP2W': Dataset.QM3_1,
-    'D_CCS_CHP4': Dataset.QM3_1,
     'D_CCS_CCP1': Dataset.QM3_1,
     'D_CCS_CCP2W': Dataset.QM3_1,
     'D_CCS_CCE1': Dataset.QM3_1,
