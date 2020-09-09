@@ -1,10 +1,13 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qid-batch-runner
   labels:
     app: qid-batch-runner
 spec:
+  selector:
+    matchLabels:
+      app: qid-batch-runner
   replicas: 1
   strategy:
     rollingUpdate:
@@ -21,113 +24,113 @@ spec:
       securityContext:
         fsGroup: 1000
       containers:
-      - name: qid-batch-runner
-        lifecycle:
-          postStart:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - |
-                  cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql && 
-                  chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
-                  # the above is a workaround to get round the permissions as currently we cant mount it without doing this
-        image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
-        imagePullPolicy: Always
-        tty: true
-        stdin: true
-        env:
-          - name: RABBITMQ_SERVICE_HOST
-            value: rabbitmq
-          - name: RABBITMQ_SERVICE_PORT
-            value: "5672"
-          - name: RABBITMQ_USER
-            valueFrom:
-              secretKeyRef:
-                name: rabbitmq
-                key: rabbitmq-username
-          - name: RABBITMQ_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: rabbitmq
-                key: rabbitmq-password
-          - name: DB_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: db-config
-                key: db-host
-          - name: DB_PORT
-            valueFrom:
-              configMapKeyRef:
-                name: db-config
-                key: db-port
-          - name: DB_NAME
-            valueFrom:
-              configMapKeyRef:
-                name: db-config
-                key: db-name
-          - name: DB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: username
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: password
-          - name: SFTP_QM_DIRECTORY
-            valueFrom:
-              configMapKeyRef:
-                key: sftp-qm-supplier-directory
-                name: project-config
-          - name: SFTP_PPO_DIRECTORY
-            valueFrom:
-              configMapKeyRef:
-                key: sftp-ppo-supplier-directory
-                name: project-config
-          - name: SFTP_HOST
-            valueFrom:
-              secretKeyRef:
-                name: sftp-ssh-credentials
-                key: host
-          - name: SFTP_PORT
-            value: "22"
-          - name: SFTP_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: sftp-ssh-credentials
-                key: username
-          - name: SFTP_PASSPHRASE
-            valueFrom:
-              secretKeyRef:
-                name: sftp-ssh-credentials
-                key: passphrase
-          - name: SFTP_KEY_FILENAME
-            value: "/home/qidbatchrunner/.sftp-ssh/id_rsa"
-          - name: OUR_PUBLIC_KEY_PATH
-            value: "/home/qidbatchrunner/.pgp-keys/our_public_key.asc"
-          - name: QM_PUBLIC_KEY_PATH
-            value: "/home/qidbatchrunner/.pgp-keys/supplier_QM_dummy_public_key.asc"
-          - name: PPO_PUBLIC_KEY_PATH
-            value: "/home/qidbatchrunner/.pgp-keys/supplier_PPO_dummy_public_key.asc"
-        volumeMounts:
-          - name: cloud-sql-certs
-            mountPath: "/home/qidbatchrunner/postgresql"
-            readOnly: true
-          - name: sftp-keys
-            mountPath: "/home/qidbatchrunner/.sftp-ssh"
-            readOnly: true
-          - name: pgp-keys
-            mountPath: "/home/qidbatchrunner/.pgp-keys"
-            readOnly: true
-        resources:
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
-          limits:
-            cpu: "1000m"
-            memory: "2048Mi"
+        - name: qid-batch-runner
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    cp /home/qidbatchrunner/postgresql/* /home/qidbatchrunner/.postgresql &&
+                    chmod 0600 /home/qidbatchrunner/.postgresql/postgresql.key
+                    # the above is a workaround to get round the permissions as currently we cant mount it without doing this
+          image: eu.gcr.io/census-rm-ci/rm/census-rm-qid-batch-runner:latest
+          imagePullPolicy: Always
+          tty: true
+          stdin: true
+          env:
+            - name: RABBITMQ_SERVICE_HOST
+              value: rabbitmq
+            - name: RABBITMQ_SERVICE_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-password
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: db-host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: db-port
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: db-name
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: SFTP_QM_DIRECTORY
+              valueFrom:
+                configMapKeyRef:
+                  key: sftp-qm-supplier-directory
+                  name: project-config
+            - name: SFTP_PPO_DIRECTORY
+              valueFrom:
+                configMapKeyRef:
+                  key: sftp-ppo-supplier-directory
+                  name: project-config
+            - name: SFTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: sftp-ssh-credentials
+                  key: host
+            - name: SFTP_PORT
+              value: "22"
+            - name: SFTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sftp-ssh-credentials
+                  key: username
+            - name: SFTP_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: sftp-ssh-credentials
+                  key: passphrase
+            - name: SFTP_KEY_FILENAME
+              value: "/home/qidbatchrunner/.sftp-ssh/id_rsa"
+            - name: OUR_PUBLIC_KEY_PATH
+              value: "/home/qidbatchrunner/.pgp-keys/our_public_key.asc"
+            - name: QM_PUBLIC_KEY_PATH
+              value: "/home/qidbatchrunner/.pgp-keys/supplier_QM_dummy_public_key.asc"
+            - name: PPO_PUBLIC_KEY_PATH
+              value: "/home/qidbatchrunner/.pgp-keys/supplier_PPO_dummy_public_key.asc"
+          volumeMounts:
+            - name: cloud-sql-certs
+              mountPath: "/home/qidbatchrunner/postgresql"
+              readOnly: true
+            - name: sftp-keys
+              mountPath: "/home/qidbatchrunner/.sftp-ssh"
+              readOnly: true
+            - name: pgp-keys
+              mountPath: "/home/qidbatchrunner/.pgp-keys"
+              readOnly: true
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2048Mi"
       volumes:
         - name: cloud-sql-certs
           secret:
