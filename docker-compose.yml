@@ -2,9 +2,12 @@ version: '3'
 services:
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:3.6.10-management
+    image: rabbitmq:3.8-management
     ports:
       - "5369:4369"
       - "45672:25672"
       - "6671-6672:5671-5672"
       - "16671-16672:15671-15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmquser
+      - RABBITMQ_DEFAULT_PASS=rmqp455w0rd
