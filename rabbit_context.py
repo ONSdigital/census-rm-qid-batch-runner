@@ -12,7 +12,7 @@ class RabbitContext:
         self._vhost = kwargs.get('vhost') or os.getenv('RABBITMQ_VHOST', '/')
         self._exchange = kwargs.get('exchange') or os.getenv('RABBITMQ_EXCHANGE', '')
         self._user = kwargs.get('user') or os.getenv('RABBITMQ_USER', 'rmquser')
-        self._password = kwargs.get('password') or os.getenv('RABBITMQ_PASSWORD', 'rmqp455w0rd')
+        self._password = kwargs.get('password') or os.getenv('RABBITMQ_PASSWORD', 'qpassword')
         self.queue_name = kwargs.get('queue_name') or os.getenv('RABBITMQ_QUEUE', 'unaddressedRequestQueue')
 
     def __enter__(self):

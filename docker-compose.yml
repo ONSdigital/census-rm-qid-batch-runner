@@ -10,4 +10,4 @@ services:
       - "16671-16672:15671-15672"
     environment:
       - RABBITMQ_DEFAULT_USER=rmquser
-      - RABBITMQ_DEFAULT_PASS=rmqp455w0rd
+      - RABBITMQ_DEFAULT_PASS=qpassword
