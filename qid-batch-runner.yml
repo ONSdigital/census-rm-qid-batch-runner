@@ -41,7 +41,7 @@ spec:
           stdin: true
           env:
             - name: RABBITMQ_SERVICE_HOST
-              value: rm-rabbitmq-client
+              value: rm-rabbitmq
             - name: RABBITMQ_SERVICE_PORT
               value: "5672"
             - name: RABBITMQ_USER
