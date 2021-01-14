@@ -9,8 +9,8 @@ ENV RABBITMQ_SERVICE_HOST=rabbitmq
 ENV RABBITMQ_SERVICE_PORT 5672
 ENV RABBITMQ_VHOST /
 ENV RABBITMQ_QUEUE unaddressedRequestQueue
-ENV RABBITMQ_USER guest
-ENV RABBITMQ_PASSWORD guest
+ENV RABBITMQ_USER rmquser
+ENV RABBITMQ_PASSWORD qpassword
 
 COPY Pipfile* /home/qidbatchrunner/
 RUN pipenv install --system --deploy
