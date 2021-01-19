@@ -51,8 +51,8 @@ def rabbit_connection_and_channel():
         pika.ConnectionParameters(os.getenv('RABBITMQ_SERVICE_HOST', 'localhost'),
                                   int(os.getenv('RABBITMQ_SERVICE_PORT', '6672')),
                                   os.getenv('RABBITMQ_VHOST', '/'),
-                                  pika.PlainCredentials(os.getenv('RABBITMQ_USER', 'rmquser'),
-                                                        os.getenv('RABBITMQ_PASSWORD', 'qpassword'))))
+                                  pika.PlainCredentials(os.getenv('RABBITMQ_USER', 'guest'),
+                                                        os.getenv('RABBITMQ_PASSWORD', 'guest'))))
     channel = connection.channel()
     channel.exchange_declare(exchange='events', exchange_type='topic', durable=True)
     channel.queue_declare('acceptance_tests_uac', exclusive=True)
